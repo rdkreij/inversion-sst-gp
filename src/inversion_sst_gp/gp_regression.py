@@ -1,14 +1,14 @@
-from scipy.linalg.lapack import dpotrf, dpotri
 import numpy as np
 from numpy.linalg import multi_dot as mdot
 from scipy.linalg import block_diag
+from scipy.linalg.lapack import dpotrf, dpotri
 from scipy.optimize import minimize, shgo
 from scipy.spatial import distance_matrix
 
 from src.inversion_sst_gp.utils import map_val
 
 
-class GPRegression(object):
+class GPRegressionJoint(object):
     # Gaussian Process Regression Model
 
     def __init__(
@@ -154,7 +154,7 @@ class GPRegression(object):
     ):
         # calculate negative restricted log marginal likelihood of z
 
-        lml = GPRegression.calculate_rlml_z(
+        lml = GPRegressionJoint.calculate_rlml_z(
             params_val,
             params_key,
             gprm,
@@ -242,18 +242,18 @@ class GPRegression(object):
 
             if shgo_bool:
                 result = shgo(
-                    GPRegression.calculate_negative_rlml_z, bounds, args=args, n=1e3
+                    GPRegressionJoint.calculate_negative_rlml_z, bounds, args=args, n=1e3
                 )
             else:
                 result = minimize(
-                    GPRegression.calculate_negative_rlml_z,
+                    GPRegressionJoint.calculate_negative_rlml_z,
                     initial_params_val,
                     args=args,
                     bounds=bounds,
                 )
         else:
             result = minimize(
-                GPRegression.calculate_negative_rlml_z, initial_params_val, args=args
+                GPRegressionJoint.calculate_negative_rlml_z, initial_params_val, args=args
             )
 
         if solve_log:
@@ -302,7 +302,7 @@ class GPRegression(object):
         return muu, muv, muS, stdu, stdv, stdS, Kx_vel
 
     def predict(self, params, return_prior=False, return_Kxstar=False):
-        # predict using GPRegression
+        # predict using GPRegressionJoint
 
         Kx = self.construct_Kx(params)  # construct Kx
         Kz = self.construct_Kz(params, self.HA, Kx)  # construct Kz
@@ -343,7 +343,7 @@ def calculate_prediction_gpregression(
         maskp = np.ones_like(dTds1, dtype=bool)
         
     # GP regression
-    gprm = GPRegression(
+    gprm = GPRegressionJoint(
         dTds1,
         dTds2,
         dTdt,
@@ -366,6 +366,83 @@ def calculate_prediction_gpregression(
             params, return_prior=False, return_Kxstar=True
         )
         return muustar, muvstar, muSstar, stdustar, stdvstar, stdSstar, Kxstar_vel, Kxstar
+
+class GPRegressionProcess(object):
+    # fit covariance parameters
+
+    def __init__(self, alpha, X, Y, degree=2):
+        self.alpha = alpha
+        self.s = np.stack([X, Y],2)
+        self.degree = degree
+
+        # mask
+        self.masko = np.logical_not(np.isnan(alpha))
+        self.alphao = self.alpha[self.masko]
+
+        # grid
+        so = self.s[self.masko]
+        self.d = distance_matrix(so,so)
+        self.match_mask = self.d==0
+        self.phi = phi(so[:,0], so[:,1], degree)
+
+    def estimate_beta(self, sigma, ls, tau):
+        # covariance matrix
+        K = kernel_matern_3_2_var(self.d, self.match_mask, sigma, ls, tau)
+        L = chol(K)
+        Q = chol2inv(L)
+
+        # universal kriging
+        return mdot([cholinv(mdot([self.phi.T,Q,self.phi])),self.phi.T,Q,self.alphao])
+
+    @staticmethod
+    def calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log):
+        # calculate restricted log marginal likelihood of alpha
+
+        if solve_log:
+            sigma, ls, tau = list(np.exp(theta))
+        else:
+            sigma, ls, tau = list(theta)
+
+        # covariance matrix
+        K = kernel_matern_3_2_var(d, match_mask, sigma, ls, tau)
+        L = chol(K)
+        Q = chol2inv(L)
+
+        # universal kriging
+        beta = mdot([cholinv(mdot([phi.T,Q,phi])),phi.T,Q,alpha])
+        mu = mdot([phi,beta])
+
+        # compute rlml (withouth constant)
+        return -1/2*mdot([(alpha-mu).T,Q,alpha-mu])\
+            -np.sum(np.log(np.diag(L)))\
+            -1/2*np.log(np.linalg.det(mdot([phi.T,Q,phi])))
+
+    @staticmethod
+    def calculate_negative_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log):
+        # calculate restricted log marginal likelihood of alpha
+        return -GPRegressionProcess.calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log)
+
+    def estimate_theta(self, initial_sigma, initial_ls, initial_tau, solve_log=False): 
+        # optimising rlml alpha
+        initial_theta = [initial_sigma, initial_ls, initial_tau]
+
+        if solve_log:
+            initial_theta_log = np.log(initial_theta)
+            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log)
+            result_log = minimize(GPRegressionProcess.calculate_negative_rlml_alpha, initial_theta_log, args=args)
+            sigma, ls, tau = list(np.exp(result_log.x))
+        else:
+            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log)
+            bounds = [(0,None)]*3
+            result = minimize(GPRegressionProcess.calculate_negative_rlml_alpha, initial_theta, args=args, bounds=bounds, method='Nelder-Mead')
+            sigma, ls, tau = list(result.x)
+        return sigma, ls, tau
+    
+def estimate_params_process(process, X, Y , initial_sigma, initial_ls, initial_tau, degree = 2, solve_log=True):
+    # estimate parameters for process
+    gprm = GPRegressionProcess(process, X, Y,degree=degree)
+    sigma, ls, tau = gprm.estimate_theta(initial_sigma, initial_ls, initial_tau, solve_log)
+    return sigma, ls, tau
 
 def chol(M):
     # Cholesky decomposition

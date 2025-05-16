@@ -1,4 +1,5 @@
 import numpy as np
+import json
 import pandas as pd
 from geographiclib.geodesic import Geodesic
 
@@ -91,8 +92,33 @@ def map_mask(maski,mask):
 def extract_params(filename, name, value, type):
     if type == "gp":
         keys=["sigma_u","l_u","tau_u","l_v","tau_v","sigma_v","sigma_S","l_S","tau_S","sigma_tau"]
+    elif type == "num_est":
+        keys=["sigma_u","l_u","tau_u","l_v","tau_v","sigma_v","sigma_S","l_S","tau_S"]
     elif type == "gos":
         keys=["n"]
+    
     df = pd.read_csv(filename)
     row = df[df[name] == value].iloc[0]
     return {k: row[k] for k in keys} if keys else row.to_dict()
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (np.integer,)):
+            return int(obj)
+        elif isinstance(obj, (np.floating,)):
+            return float(obj)
+        elif isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+        return super().default(obj)
+    
+def save_json(data, path):
+    # save variable to json
+    with open(path, 'w') as json_file:
+        json.dump(data, json_file, indent=4, cls=NumpyEncoder)
+    pass
+
+def load_json(path):
+    # load variable from json
+    with open(path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
