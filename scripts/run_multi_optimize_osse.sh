@@ -3,9 +3,9 @@
 #SBATCH --partition=work
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=1G
+#SBATCH --mem=10G
 #SBATCH --time=02:00:00
-#SBATCH --array=0-999  # Placeholder, will exit if index is too high
+#SBATCH --array=800  # Placeholder, will exit if index is too high
 #SBATCH --output=log/job_output_%A_%a.out
 #SBATCH --error=log/job_error_%A_%a.log
 
@@ -63,4 +63,4 @@ read step model_type test_type step_index <<< "$combo"
 echo "Running with: step=$step, model_type=$model_type, test_type=$test_type, index=$step_index"
 
 # Run your optimization script
-.venv/bin/python scripts/optimize_osse.py "$step" "$model_type" "$test_type" "$step_index"
+.venv/bin/python scripts/optimize_osse.py $step "$model_type" "$test_type" "$step_index"

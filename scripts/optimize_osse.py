@@ -110,17 +110,16 @@ elif model_type == "optimum":
         "solve_log": True,
         "bounds_params": {},
     }
-
 # Load test dataset
 if test_type == "noise":
     ds = xr.open_dataset("data/suntans_measurement_error.nc").sel(noise=step)
-elif (test_type == "time_24h") or (test_type == "time_1h"):
+elif test_type == "time_24h":
     ds = xr.open_dataset("data/suntans_24h.nc").sel(
-        time=time_base + np.timedelta64(step, "s")
+        time=time_base + np.timedelta64(int(step), "s")
     )
 elif test_type == "time_1h":
     ds = xr.open_dataset("data/suntans_1h.nc").sel(
-        time=time_base + np.timedelta64(step, "s")
+        time=time_base + np.timedelta64(int(step), "s")
     )
 elif test_type == "cloud_sparse":
     ds = xr.open_dataset("data/suntans_sparse_cloud.nc").sel(coverage_sparse=step)
