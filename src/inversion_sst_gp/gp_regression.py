@@ -5,7 +5,7 @@ from scipy.linalg.lapack import dpotrf, dpotri
 from scipy.optimize import minimize, shgo
 from scipy.spatial import distance_matrix
 
-from src.inversion_sst_gp.utils import map_val
+from inversion_sst_gp.utils import map_val
 
 
 class GPRegressionJoint(object):

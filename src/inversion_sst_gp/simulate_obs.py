@@ -1,5 +1,6 @@
 import numpy as np
-from src.inversion_sst_gp.utils import finite_difference_2d
+
+from inversion_sst_gp.utils import finite_difference_2d
 
 
 def simulate_tracer_observations_from_model_data(

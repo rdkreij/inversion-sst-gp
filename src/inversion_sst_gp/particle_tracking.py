@@ -1,7 +1,9 @@
 import numpy as np
-from src.inversion_sst_gp.gp_regression import chol
 from geographiclib.geodesic import Geodesic
 from scipy.interpolate import LinearNDInterpolator
+
+from inversion_sst_gp.gp_regression import chol
+
 
 def simulate_particle_flow_field(X,Y,u,v,lon0,lat0,lonc,latc,tstep,N):
 
