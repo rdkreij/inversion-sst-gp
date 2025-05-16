@@ -1043,3 +1043,199 @@ def plot_particle_tracking(list_dict_tracks,lon,lat,muustar,muvstar,Kxstar_vel,T
     else:
         plt.close(fig)
  
+
+def plot_noise_metrics(
+    df_noise_gp_obs_t,
+    df_noise_gp_num_t,
+    df_noise_gos_t,
+    plt_show=True,
+    return_fig=False,
+    ):
+    fig, ax = plt.subplots(1,2,figsize=(9,3), constrained_layout=True)
+    
+    ax[0].plot(df_noise_gos_t.noise_sd,df_noise_gos_t.RMSE,'rs',ms=4,lw=1,label='GOS')
+    ax[0].plot(df_noise_gp_num_t.noise_sd,df_noise_gp_num_t.RMSE,'ko',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t}$')
+    ax[0].plot(df_noise_gp_obs_t.noise_sd,df_noise_gp_obs_t.RMSE,'bo',ms=4,lw=1,label='GP $\\hat{\\theta}_t$',mfc='w')
+    ax[0].set(xlabel='$\\sigma_\\tau$ (K)', ylabel='RMSE (m$\,$s$^{-1}$)')
+    ylims = ax[0].get_ylim()
+    ax[0].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+    ax[0].legend(ncol=2,loc='upper center')
+
+    ax[1].plot(df_noise_gp_num_t.noise_sd,df_noise_gp_num_t.coverage90,'ko',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t}$')
+    ax[1].plot(df_noise_gp_obs_t.noise_sd,df_noise_gp_obs_t.coverage90,'bo',ms=4,lw=1,mfc='w',label='GP $\\hat{\\theta}_t$')
+    ax[1].set(xlabel='$\\sigma_\\tau$ (K)', ylabel='P90')
+    ax[1].axhline(.9,ls=':',lw=1,color='k')
+    ylims = ax[1].get_ylim()
+    ax[1].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+
+    for i,axi in enumerate(ax.flatten()):
+        axi.xaxis.set_ticks_position('both')
+        axi.yaxis.set_ticks_position('both')
+        axi.tick_params(axis='both', direction='in', length=5)
+        axi.legend(ncol=2,loc='upper center')
+
+        annotate_corner(axi,f'{chr(97+i)})',box=False,buffer=4)
+        
+    if plt_show:
+        plt.show()
+        
+    if return_fig:
+        return fig,ax
+    else:
+        plt.close(fig)
+        
+def plot_time_metrics(
+    df_time_1h_gp_obs_t,
+    df_time_1h_gp_num_t,
+    df_time_1h_gp_num_t1,
+    df_time_1h_gos_t,
+    df_time_24h_gp_obs_t,
+    df_time_24h_gp_num_t,
+    df_time_24h_gp_num_t1,
+    df_time_24h_gos_t,
+    plt_show=True,
+    return_fig=False,
+):
+    fig, ax = plt.subplots(2,2,figsize=(9,6), constrained_layout=True)
+
+    dict_time_1h = {
+            'gprm': df_time_1h_gp_num_t,
+            'gprm_e': df_time_1h_gp_num_t1,
+            'gos': df_time_1h_gos_t,
+            'optimum': df_time_1h_gp_obs_t,
+        }
+    dict_time_24h = {
+            'gprm': df_time_24h_gp_num_t,
+            'gprm_e': df_time_24h_gp_num_t1,
+            'gos': df_time_24h_gos_t,
+            'optimum': df_time_24h_gp_obs_t,
+        }
+    
+    type_test_list = ['time_1h','time_24h']
+    row=0
+    for type_test in type_test_list:
+
+        # make figure
+        if type_test=='time_1h':
+            xlabel = '$t$ (h)'
+            xscale = 1/3600
+            dict_time = dict_time_1h
+        elif type_test=='time_24h':
+            xlabel = '$t$ (d)'
+            xscale = 1/3600/24
+            dict_time = dict_time_24h
+
+        ax[row,0].plot(dict_time["gos"].time_sec*xscale,dict_time["gos"].RMSE,'r-',ms=4,lw=1,label='GOS')
+        ax[row,0].plot(dict_time["gprm"].time_sec*xscale,dict_time["gprm"].RMSE,'k-',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t_1}$')
+        ax[row,0].plot(dict_time["gprm_e"].time_sec*xscale,dict_time["gprm_e"].RMSE,'b-',ms=4,lw=1,label='GP $\\hat{\\theta}_t'+'$',mfc='w')
+        ax[row,0].plot(dict_time["optimum"].time_sec*xscale,dict_time["optimum"].RMSE,'g-',ms=4,lw=1,label='GP $\\tilde{\\theta}_t$')
+        ax[row,0].set(xlabel=xlabel, ylabel='RMSE (m$\,$s$^{-1}$)')
+        ylims = ax[row,0].get_ylim()
+        ax[row,0].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+        ax[row,0].legend(ncol=2,loc='upper center')
+
+        ax[row,1].plot(dict_time["gprm"].time_sec*xscale,dict_time["gprm"].coverage90,'k-',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t_1}$')
+        ax[row,1].plot(dict_time["gprm_e"].time_sec*xscale,dict_time["gprm_e"].coverage90,'b-',ms=4,lw=1,mfc='w',label='GP $\\hat{\\theta}_t'+'$')
+        ax[row,1].plot(dict_time["optimum"].time_sec*xscale,dict_time["optimum"].coverage90,'g-',ms=4,lw=1,label='GP $\\tilde{\\theta}_t$')
+        ax[row,1].set(xlabel=xlabel, ylabel='P90')
+        ax[row,1].axhline(.9,ls=':',lw=1,color='k')
+        ylims = ax[row,1].get_ylim()
+        ax[row,1].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+        row += 1
+    
+    if len(type_test_list) == 2:
+        for col in [0,1]:
+            ylim00 = ax[0,col].get_ylim()
+            ylim10 = ax[1,col].get_ylim()
+            ylims = (min(ylim00[0],ylim10[0]),max(ylim00[1],ylim10[1]))
+            ax[0,col].set_ylim(ylims)
+            ax[1,col].set_ylim(ylims)
+        
+
+    for i,axi in enumerate(ax.flatten()):
+        axi.xaxis.set_ticks_position('both')
+        axi.yaxis.set_ticks_position('both')
+        axi.tick_params(axis='both', direction='in', length=5)
+        axi.legend(ncol=2,loc='upper center')
+
+        annotate_corner(axi,f'{chr(97+i)})',box=False,buffer=4)
+        
+    if plt_show:
+        plt.show()
+        
+    if return_fig:
+        return fig,ax
+    else:
+        plt.close(fig)
+        
+def plot_cloud_metrics(
+    df_cloud_dense_gp_num_t,
+    df_cloud_dense_gp_obs_t,
+    df_cloud_sparse_gp_num_t,
+    df_cloud_sparse_gp_obs_t,
+    plt_show=True,
+    return_fig=False,
+):
+    fig, ax = plt.subplots(2,2,figsize=(9,6), constrained_layout=True)
+
+    dict_cloud_sparse = {
+            'gprm': df_cloud_sparse_gp_num_t,
+            'gprm_e': df_cloud_sparse_gp_obs_t,
+        }
+    dict_cloud_dense = {
+            'gprm': df_cloud_dense_gp_num_t,
+            'gprm_e': df_cloud_dense_gp_obs_t,
+        }
+
+    type_test_list = ['cloud_dense','cloud_sparse']
+    row=0
+    for type_test in type_test_list:
+
+        if (type_test=='cloud_sparse'):
+            xlabel = 'sparse cloud coverage ($\%$)'
+            dict_cloud = dict_cloud_sparse
+            val_name = 'coverage_sparse'
+        elif (type_test=='cloud_dense'):
+            xlabel = 'dense cloud coverage ($\%$)'
+            dict_cloud = dict_cloud_dense
+            val_name = 'coverage_dense'
+
+        ax[row,0].plot(dict_cloud["gprm"][val_name]*100,dict_cloud["gprm"].RMSE,'ko',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t_1}$')
+        ax[row,0].plot(dict_cloud["gprm_e"][val_name]*100,dict_cloud["gprm_e"].RMSE,'bo',ms=4,lw=1,label='GP $\\hat{\\theta}_t'+'$',mfc='w')
+        ax[row,0].set(xlabel=xlabel, ylabel='RMSE (m$\,$s$^{-1}$)')
+        ylims = ax[row,0].get_ylim()
+        ax[row,0].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+        ax[row,0].legend(ncol=2,loc='upper center')
+
+        ax[row,1].plot(dict_cloud["gprm"][val_name]*100,dict_cloud["gprm"].coverage90,'ko',ms=4,lw=1,label='GP $\\tilde{\\theta}_{t_1}$')
+        ax[row,1].plot(dict_cloud["gprm_e"][val_name]*100,dict_cloud["gprm_e"].coverage90,'bo',ms=4,lw=1,mfc='w',label='GP $\\hat{\\theta}_t'+'$')
+        ax[row,1].set(xlabel=xlabel, ylabel='P90')
+        ax[row,1].axhline(.9,ls=':',lw=1,color='k')
+        ylims = ax[row,1].get_ylim()
+        ax[row,1].set_ylim(ylims[0],ylims[1]+(ylims[1]-ylims[0])*.25)
+        row += 1
+    
+    if len(type_test_list) == 2:
+        for col in [0,1]:
+            ylim00 = ax[0,col].get_ylim()
+            ylim10 = ax[1,col].get_ylim()
+            ylims = (min(ylim00[0],ylim10[0]),max(ylim00[1],ylim10[1]))
+            ax[0,col].set_ylim(ylims)
+            ax[1,col].set_ylim(ylims)
+        
+
+    for i,axi in enumerate(ax.flatten()):
+        axi.xaxis.set_ticks_position('both')
+        axi.yaxis.set_ticks_position('both')
+        axi.tick_params(axis='both', direction='in', length=5)
+        axi.legend(ncol=2,loc='upper center')
+
+        annotate_corner(axi,f'{chr(97+i)})',box=False,buffer=4)
+        
+    if plt_show:
+        plt.show()
+        
+    if return_fig:
+        return fig,ax
+    else:
+        plt.close(fig)
