@@ -5,7 +5,6 @@ description = ""
 authors = ["Rick de Kreij <r.d.kreij@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10"
 packages = [{ include = "inversion_sst_gp", from = "src" }]
 
 [tool.poetry.dependencies]
