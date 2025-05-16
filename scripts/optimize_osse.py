@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 import numpy as np
 import xarray as xr
@@ -14,6 +14,7 @@ id = sys.argv[4]
 
 # Load base dataset and compute grid properties
 time_base_str = "2014-02-19T18:00:00"
+time_base = np.datetime64(time_base_str)
 
 # Set model hyperparameters
 if model_type == "gprm":
@@ -70,7 +71,6 @@ elif model_type == "gprm_e":
     }
 
 elif model_type == "optimum":
-    time_base = np.datetime64(time_base_str)
     ds_base = xr.open_dataset("data/suntans_1h.nc").sel(time=time_base)
 
     lon, lat, To, dTdto, u, v, S = (

@@ -63,4 +63,4 @@ read step model_type test_type step_index <<< "$combo"
 echo "Running with: step=$step, model_type=$model_type, test_type=$test_type, index=$step_index"
 
 # Run your optimization script
-python3 scripts/optimize_osse.py "$step" "$model_type" "$test_type" "$step_index"
+.venv/bin/python scripts/optimize_osse.py "$step" "$model_type" "$test_type" "$step_index"
