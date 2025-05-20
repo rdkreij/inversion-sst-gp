@@ -25,7 +25,7 @@ This repository contains all code, data, and notebooks to reproduce the experime
 
 - LICENSE, README.md, pyproject.toml, and poetry.lock manage licensing and environment setup.
 
----
+<!-- ---
 
 ## Basic usage
 
@@ -37,4 +37,4 @@ This repository contains all code, data, and notebooks to reproduce the experime
    poetry install
    poetry shell
 
-2. CONTINUE HERE..........
+2. CONTINUE HERE.......... -->
