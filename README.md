@@ -4,22 +4,22 @@ Physics-informed Gaussian process inversion of sea surface temperature to predic
 
 We present a novel method to estimate fine-scale ocean surface currents using satellite sea surface temperature (SST) data. Our approach uses Gaussian process (GP) regression guided by the tracer transport equation, providing not only current predictions but also associated uncertainty. The model effectively handles noisy and incomplete SST data (e.g., due to cloud cover).
 
-This repository contains all code, data, and notebooks to reproduce the experiments and results presented in the paper, including synthetic observing system simulation experiments (OSSEs) and real-world satellite SST applications.
+This repository contains all code, data, and notebooks to reproduce the experiments and results presented in the paper, including the observing system simulation experiment (OSSE) and real-world satellite SST applications.
 
 ---
 
 ## Repository structure
 
-- The **data/** folder contains NetCDF files with SST, altimeter currents, and synthetic datasets with noise or clouds for OSSEs.
+- The **data/** folder contains NetCDF files with OSSE datasets including noise and clouds, satellite SST, and altimetry-derived currents.
 
 - The **notebooks/** folder has Jupyter notebooks demonstrating:  
   1. OSSE individual case studies (noisy data, cloud coverage, etc.)  
-  2. OSSE evaluation metrics and model validation  
-  3. Satellite SST data inversion over the eastern Indian Ocean  
+  2. OSSE evaluation metrics
+  3. Satellite SST case studies including a downstream application (particle tracking)
 
-- The **outputs/** folder stores CSV files with precomputed model results for each experiment scenario.
+- The **outputs/** folder stores CSV files with precomputed estimated covariance parameters and scoring metrics for each experiment scenario.
 
-- The **scripts/** folder includes Python and shell scripts for optimizing model parameters, running simulations, and merging outputs.
+- The **scripts/** folder includes Python and shell scripts for estimating model parameters, running simulations, and merging outputs.
 
 - The **src/inversion_sst_gp/** directory contains the core Python modules implementing GP regression, metrics, particle tracking, and utilities.
 
@@ -36,3 +36,5 @@ This repository contains all code, data, and notebooks to reproduce the experime
    cd inversion-sst-gp
    poetry install
    poetry shell
+
+2. CONTINUE HERE..........
