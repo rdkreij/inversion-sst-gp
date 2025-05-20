@@ -3,13 +3,15 @@ import os
 import pandas as pd
 
 def load_json(path):
-    # load variable from json
-    with open(path, 'r') as json_file:
-        data = json.load(json_file)
-    return data
+    """Load JSON file and return as Python dict."""
+    with open(path, 'r') as f:
+        return json.load(f)
 
+# Folder containing JSON files
 main_folder = 'intermediate'
-type_label_dict_osse = {
+
+# Mapping of data types to expected labels
+type_label_dict = {
     'time_24h': ["optimum", "gprm", "gprm_e", "gos"],
     'time_1h': ["optimum", "gprm", "gprm_e", "gos"],
     'noise': ["gprm", "gprm_e", "gos"],
@@ -18,80 +20,78 @@ type_label_dict_osse = {
     'satellite': ["gprm_e"]
 }
 
-for type, labels in type_label_dict_osse.items():
-    print(f"Processing {type}...")
-    
+# Optional label renaming
+rename_dicts = {
+    'time_1h': {
+        'optimum': 'gp_num_t',
+        'gprm': 'gp_num_t1',
+        'gprm_e': 'gp_obs_t',
+        'gos': 'gos_t',
+    },
+    'time_24h': {
+        'optimum': 'gp_num_t',
+        'gprm': 'gp_num_t1',
+        'gprm_e': 'gp_obs_t',
+        'gos': 'gos_t',
+    },
+    'default': {
+        'gprm': 'gp_num_t',
+        'gprm_e': 'gp_obs_t',
+        'gos': 'gos_t',
+        'GPRM_e': 'gp_obs_t'
+    }
+}
+
+# Mapping of type to column name for "step"
+step_key_map = {
+    'noise': 'noise_sd',
+    'cloud_dense': 'coverage_dense',
+    'cloud_sparse': 'coverage_sparse',
+    'time_1h': 'time_sec',
+    'time_24h': 'time_sec',
+    'satellite': 'time'
+}
+
+for data_type, labels in type_label_dict.items():
+    print(f"Processing {data_type}...")
+
     for label in labels:
-        if type == 'satellite':
+        # Find relevant files
+        if data_type == 'satellite':
             file_names = [
                 f for f in os.listdir(main_folder)
                 if f.endswith('.json') and "satellite" in f
             ]
         else:
-            if label == 'gprm':
-                file_names = [
-                    f for f in os.listdir(main_folder)
-                    if f.endswith('.json') and label in f and "gprm_e" not in f
-                ]
-            else:    
-                file_names = [
-                    f for f in os.listdir(main_folder)
-                    if f.endswith('.json') and label in f
-                ]
+            file_names = [
+                f for f in os.listdir(main_folder)
+                if f.endswith('.json') and label in f
+                and not (label == 'gprm' and 'gprm_e' in f)
+            ]
 
-        list_data = []
+        if not file_names:
+            print(f"No files found for {label} in {data_type}.")
+            continue
 
+        records = []
         for file_name in file_names:
-            
-            nested_dict = load_json(f'{main_folder}/{file_name}')
-            if label == 'gprm_e' or label == 'gprm' or label == 'optimum' or label == "GPRM_e":
-                flat_dict = {**nested_dict, **nested_dict['est_params']}
-                del flat_dict['est_params']
-            else:
-                flat_dict = nested_dict
-                
-            if type == 'noise':
-                step_name = "noise_sd"
-                flat_dict[step_name] = flat_dict.pop("step")
-            elif type == 'cloud_dense':
-                step_name = "coverage_dense"
-                flat_dict[step_name] = flat_dict.pop("step")
-            elif type == 'cloud_sparse':
-                step_name = "coverage_sparse"
-                flat_dict[step_name] = flat_dict.pop("step")
-            elif type == "time_1h" or type == "time_24h":
-                step_name = "time_sec"
-                flat_dict[step_name] = flat_dict.pop("step")
-            elif type == "satellite":
-                step_name = "time"
-                flat_dict[step_name] = flat_dict.pop("datet")
-                
-                date_str = flat_dict[step_name]
-                date_part, time_part = date_str.split('_')
-                time_part_fixed = time_part.replace('-', ':')
-                flat_dict[step_name] = f"{date_part}T{time_part_fixed}"
-            list_data.append(flat_dict)
-                
-        if type == "time_1h" or type == "time_24h":
-            rename_dict = {
-                'optimum': 'gp_num_t',
-                'gprm': 'gp_num_t1',
-                'gprm_e': 'gp_obs_t',
-                'gos': 'gos_t',
-            }
-        else:
-            rename_dict = {
-                'gprm': 'gp_num_t',
-                'gprm_e': 'gp_obs_t',
-                'gos': "gos_t",
-                'GPRM_e': 'gp_obs_t',
-            }
-        if label in rename_dict:
-            label_new = rename_dict[label]
-        else:
-            label_new = label
-            
-        df = pd.DataFrame(list_data)
-        df = df.set_index(step_name).sort_index()
-        df.to_csv(f'outputs/{type}_{label_new}.csv')
-        # print(df)
+            data = load_json(os.path.join(main_folder, file_name))
+
+            # Flatten if needed
+            if label in {'gprm', 'gprm_e', 'optimum', 'GPRM_e'}:
+                data.update(data.pop('est_params', {}))
+
+            # Rename step key
+            step_column = step_key_map[data_type]
+            data[step_column] = data.pop("step")
+
+            records.append(data)
+
+        # Determine new label name
+        rename_map = rename_dicts.get(data_type, rename_dicts['default'])
+        label_output = rename_map.get(label, label)
+
+        # Convert to DataFrame and export
+        df = pd.DataFrame(records).set_index(step_column).sort_index()
+        output_path = f'outputs/{data_type}_{label_output}.csv'
+        df.to_csv(output_path)
