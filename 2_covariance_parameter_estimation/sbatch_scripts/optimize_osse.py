@@ -168,5 +168,6 @@ else:
 print(results)
 
 # Save results
-os.makedirs('intermediate', exist_ok=True)
-utils.save_json(results, f"intermediate/osse_{model_type}_{test_type}_{id}.json")
+intermediate_dir = "2_covariance_parameter_estimation/intermediate"
+os.makedirs(intermediate_dir, exist_ok=True)
+utils.save_json(results, f"{intermediate_dir}/osse_{model_type}_{test_type}_{id}.json")

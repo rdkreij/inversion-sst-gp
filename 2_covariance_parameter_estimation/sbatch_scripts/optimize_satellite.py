@@ -75,5 +75,6 @@ results = run_gprm_optim(
 print(results)
 
 # Save results
-os.makedirs('intermediate', exist_ok=True)
-utils.save_json(results, f"intermediate/satellite_{id}.json")
+intermediate_dir = "2_covariance_parameter_estimation/intermediate"
+os.makedirs(intermediate_dir, exist_ok=True)
+utils.save_json(results, f"{intermediate_dir}/satellite_{id}.json")

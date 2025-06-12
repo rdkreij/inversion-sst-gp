@@ -10,6 +10,11 @@ def load_json(path):
 # Folder containing JSON files
 main_folder = '2_covariance_parameter_estimation/intermediate'
 
+# Output directory for CSV files
+output_dir = '2_covariance_parameter_estimation/outputs'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 # Mapping of data types to expected labels
 type_label_dict = {
     'time_24h': ["optimum", "gprm", "gprm_e", "gos"],
@@ -60,19 +65,21 @@ for data_type, labels in type_label_dict.items():
         if data_type == 'satellite':
             file_names = [
                 f for f in os.listdir(main_folder)
-                if f.endswith('.json') and "satellite" in f
+                if f.endswith('.json') and data_type in f
             ]
         else:
             file_names = [
                 f for f in os.listdir(main_folder)
                 if f.endswith('.json') and label in f
-                and not (label == 'gprm' and 'gprm_e' in f)
+                and not (label == 'gprm' and 'gprm_e' in f) and data_type in f
             ]
+            
 
         if not file_names:
             print(f"No files found for {label} in {data_type}.")
             continue
-
+        else:
+            print(f"Found {len(file_names)} files for {label} in {data_type}.")
         records = []
         for file_name in file_names:
             data = load_json(os.path.join(main_folder, file_name))
@@ -93,5 +100,5 @@ for data_type, labels in type_label_dict.items():
 
         # Convert to DataFrame and export
         df = pd.DataFrame(records).set_index(step_column).sort_index()
-        output_path = f'2_covariance_parameter_estimation/outputs/{data_type}_{label_output}.csv'
+        output_path = f'{output_dir}/{data_type}_{label_output}.csv'
         df.to_csv(output_path)

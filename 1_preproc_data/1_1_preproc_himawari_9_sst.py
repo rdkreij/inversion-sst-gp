@@ -104,7 +104,7 @@ def process_himawari_sst_data(time_str):
             "lonc": lonc,
             "latc": latc,
             "time": (["time"], [current_time]),
-            "tstep": TIME_STEP_SECONDS,
+            "time_step": TIME_STEP_SECONDS,
         },
         data_vars={
             "T": (["time","lat", "lon"], T_curr_resampled),
@@ -131,6 +131,8 @@ if __name__ == "__main__":
     if ds_list:
         ds_combined = xr.concat(ds_list, dim="time")
         output_file_path = f"{PROCESSED_DIR}/himawari.nc"
+        if not utils.check_dir(PROCESSED_DIR):
+            print(f"Creating directory: {PROCESSED_DIR}")
         ds_combined.to_netcdf(output_file_path)
         print(f"Combined Himawari SST data saved to {output_file_path}")
     else:

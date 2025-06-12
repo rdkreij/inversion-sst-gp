@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem=3G
-#SBATCH --time=03:00:00
+#SBATCH --time=04:00:00
 #SBATCH --array=0-800  # Placeholder, will exit if index is too high
 #SBATCH --output=log/job_output_%A_%a.out
 #SBATCH --error=log/job_error_%A_%a.log

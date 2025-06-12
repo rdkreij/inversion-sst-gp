@@ -1,36 +1,52 @@
 import xarray as xr
 import numpy as np
 import pandas as pd
+import os
 
-from inversion_sst_gp import (
-    utils,
-    gp_regression,
-)
+from inversion_sst_gp import utils, gp_regression
 
-# Load dataset
+# Set target time and load dataset
 time_str = "2014-02-19T18:00:00"
-ds = xr.open_dataset("data/suntans_1h.nc").sel(time=np.datetime64(time_str))
+dataset_path = "data/suntans_1h.nc"
+ds = xr.open_dataset(dataset_path).sel(time=np.datetime64(time_str))
+
+# Extract variables
 time_step = ds.time_step.item()
-lon, lat, To, dTdto, u, v, S = (
+lon, lat, T, dTdt, u, v, S = (
     ds[var].values for var in ("lon", "lat", "T", "dTdt", "u", "v", "S")
 )
+
+# Compute grid properties
 lonc, latc, X, Y, LON, LAT = utils.calculate_grid_properties(lon, lat)
 
-# GPRM model - optimization of theta
-sigma_u, l_u, tau_u = gp_regression.estimate_params_process(u, X, Y,1e-1,4e4,1e-3)
-sigma_v, l_v, tau_v = gp_regression.estimate_params_process(v, X, Y,1e-1,4e4,1e-3)
-sigma_S, l_S, tau_S = gp_regression.estimate_params_process(S, X, Y,3e-7,3e4,2e-7)
-
-# collect hyperparameters
-theta = {'sigma_u':sigma_u, 'l_u':l_u, 'tau_u':tau_u,
-         'sigma_v':sigma_v, 'l_v':l_v, 'tau_v':tau_v,
-         'sigma_S':sigma_S, 'l_S':l_S, 'tau_S':tau_S,
+# Estimate GP regression model hyperparameters for u, v, and S
+theta = {
+    "sigma_u": None,
+    "l_u": None,
+    "tau_u": None,
+    "sigma_v": None,
+    "l_v": None,
+    "tau_v": None,
+    "sigma_S": None,
+    "l_S": None,
+    "tau_S": None,
 }
 
-# Add time field
-data = theta.copy()
-data['time'] = time_str
+theta["sigma_u"], theta["l_u"], theta["tau_u"] = gp_regression.estimate_params_process(
+    u, X, Y, 1e-1, 4e4, 1e-3
+)
+theta["sigma_v"], theta["l_v"], theta["tau_v"] = gp_regression.estimate_params_process(
+    v, X, Y, 1e-1, 4e4, 1e-3
+)
+theta["sigma_S"], theta["l_S"], theta["tau_S"] = gp_regression.estimate_params_process(
+    S, X, Y, 3e-7, 3e4, 2e-7
+)
 
-# Save to CSV
-df = pd.DataFrame([data])
-df.to_csv('outputs/num_model_estimated_t.csv', index=False)
+# Add time information to the results
+theta["time"] = time_str
+
+# Save hyperparameters to CSV
+intermediate_dir = "2_covariance_parameter_estimation/intermediate"
+os.makedirs(intermediate_dir, exist_ok=True)
+output_path = f"{intermediate_dir}/num_model_estimated_t.csv"
+pd.DataFrame([theta]).to_csv(output_path, index=False)

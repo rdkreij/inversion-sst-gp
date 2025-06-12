@@ -57,6 +57,11 @@ if __name__ == "__main__":
     processed_altimetry_ds = process_altimetry_data(
         ALTIMETRY_DATA_DIR, LON_LIMITS, LAT_LIMITS
     )
+    
+    # Create process directory if it doesn't exist
+    if not os.path.exists(PROCESSED_DIR):
+        print(f"Creating directory: {PROCESSED_DIR}")
+        os.makedirs(PROCESSED_DIR)
 
     # Save the processed dataset
     output_file_path = os.path.join(PROCESSED_DIR, OUTPUT_FILENAME)

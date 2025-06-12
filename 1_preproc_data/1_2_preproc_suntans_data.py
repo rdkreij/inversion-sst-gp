@@ -1,6 +1,4 @@
 import xarray as xr
-import glob
-import pandas as pd
 import numpy as np
 from scipy.interpolate import griddata
 
@@ -9,9 +7,8 @@ from inversion_sst_gp import utils, simulate_obs
 # --- Configuration ---
 LON_LIMITS = (115, 118)
 LAT_LIMITS = (-15.5, -12.5)
-HIMAWARI_GRID_PATH = "1_preproc_data/proc_data/himawari_case_1.nc"
-OCEAN_MODEL_DATA_DIR = '/mnt/c/users/23513098/OneDrive - The University of Western Australia/Linux/Python/Current/SSC_suntans/datasets'
-OCEAN_MODEL_DATA_NAME = 'SUNTANS_CROP_lon_114.3_118.7_lat_-15.7_-12.3'
+HIMAWARI_GRID_PATH = "1_preproc_data/proc_data/himawari.nc"
+OCEAN_MODEL_DATA_PATH = '1_preproc_data/non_proc_data/suntans/suntans_surface_prop_argo_abyssal_plain_.nc'
 OSSE_SNAPSHOT_TIME = np.datetime64('2014-02-19T18:00:00')
 TIME_STEP = 3600  # seconds
 PROCESSED_DIR = "1_preproc_data/proc_data"
@@ -22,35 +19,35 @@ TEST_CONFIGS = [
         'name': 'measurement_error',
         'val_range': np.arange(0, 0.016, 0.001),
         'dataset_name': "suntans_measurement_error",
-        'param_name': "noise",
+        'param_name': 'sigma_tau',
         'time_dependent': False,
     },
     {
         'name': 'sparse_cloud',
         'val_range': np.linspace(0, .75, 26),
         'dataset_name': "suntans_sparse_cloud",
-        'param_name': "coverage_sparse",
+        'param_name': 'coverage_sparse',
         'time_dependent': False,
     },
     {
         'name': 'dense_cloud',
         'val_range': np.linspace(0, .75, 26),
         'dataset_name': "suntans_dense_cloud",
-        'param_name': "coverage_dense",
+        'param_name': 'coverage_dense',
         'time_dependent': False,
     },
     {
         'name': 'time_24h',
         'val_range': np.arange(0, 100) * 24 * TIME_STEP,
         'dataset_name': "suntans_24h",
-        'param_name': "time",
+        'param_name': 'time',
         'time_dependent': True,
     },
     {
         'name': 'time_1h',
         'val_range': np.arange(0, 49) * TIME_STEP,
         'dataset_name': "suntans_1h",
-        'param_name': "time",
+        'param_name': 'time',
         'time_dependent': True,
     },
 ]
@@ -61,7 +58,7 @@ def load_himawari_grid(path_himawari_file):
     """Loads the Himawari grid coordinates from a NetCDF file."""
     ds = xr.open_dataset(path_himawari_file)
     ds_grid = ds.coords.to_dataset()
-    ds_grid = ds_grid.drop_vars(['time', 'tstep'])
+    ds_grid = ds_grid.drop_vars(['time', 'time_step'])
     return ds_grid
 
 
@@ -114,7 +111,7 @@ def interpolate_osse_to_grid(ds_o, ds_grid, target_datetime):
             lon=(['lon'], lon),
             lat=(['lat'], lat),
             time=time,
-            tstep=tstep_calc,
+            time_step=tstep_calc,
         )
     )
     return xr.merge([ds_grid, ds_data])
@@ -186,7 +183,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
 
         if (i + 1) % 10 == 0 or i == len(val_range) - 1:
             print(f"  Progress: {i + 1}/{len(val_range)} for '{test_name}'")
-
+            
     data_arrays = {
         'T': ([param_name, 'lat', 'lon'], Toc),
         'dTdt': ([param_name, 'lat', 'lon'], dTdtoc),
@@ -215,13 +212,17 @@ if __name__ == "__main__":
     ds_himawari_grid = load_himawari_grid(HIMAWARI_GRID_PATH)
     print("Himawari grid loaded.")
 
-    ds_osse_full = xr.open_mfdataset(glob.glob(f'{OCEAN_MODEL_DATA_DIR}/{OCEAN_MODEL_DATA_NAME}*'))
+    ds_osse_full = xr.open_mfdataset(OCEAN_MODEL_DATA_PATH)
     print("Full ocean model dataset loaded.")
 
     # Prepare single OSSE snapshot for non-time-dependent tests once
     print("Preparing single OSSE snapshot for observation modification tests...")
     ds_osse_snapshot = interpolate_osse_to_grid(ds_osse_full, ds_himawari_grid, OSSE_SNAPSHOT_TIME)
     print("OSSE snapshot prepared.\n")
+    
+    # Create processed directory if it doesn't exist
+    if not utils.check_dir(PROCESSED_DIR):
+        print(f"Creating directory: {PROCESSED_DIR}")
 
     # Run all tests defined in TEST_CONFIGS
     for test_config in TEST_CONFIGS:
