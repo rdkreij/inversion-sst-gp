@@ -12,8 +12,7 @@ main_folder = '2_covariance_parameter_estimation/intermediate'
 
 # Output directory for CSV files
 output_dir = '2_covariance_parameter_estimation/outputs'
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+os.makedirs(output_dir, exist_ok=True)
 
 # Mapping of data types to expected labels
 type_label_dict = {

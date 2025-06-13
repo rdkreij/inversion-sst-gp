@@ -453,7 +453,7 @@ def visualize_data(LON, LAT, T, dTdt, dTds1, dTds2, u=None, v=None, lonlims=None
         plt.close(fig)
         return
     
-def plot_predictions_osse(LON, LAT, To, dTds1o, dTds2o, dTdto, muSstar, Kxstar_vel, stdSstar, muustar, muvstar, lonlims, latlims, u=None, v=None, S=None, LONr=None, LATr=None, ur=None, vr=None, ugos=None, vgos=None, Sgos=None, params=None, datet=None, plimT=None, plimdTdt=None, plimTgrad=None, plimstdS=None, plimspeed=None, pscale=4, nx=17, ny=17, pscale_cred=None, plt_show=True, return_fig=False):    
+def plot_predictions_osse(LON, LAT, To, dTds1o, dTds2o, dTdto, muSstar, Kxstar_vel, stdSstar, muustar, muvstar, lonlims, latlims, u=None, v=None, S=None, LONr=None, LATr=None, ur=None, vr=None, ugos=None, vgos=None, Sgos=None, params=None, datet=None, plimT=None, plimdTdt=None, plimTgrad=None, plimstdS=None, plimspeed=None, pscale=4, nx=17, ny=17, pscale_cred=None, plt_show=True, return_fig=False,nxr=None,nyr=None):    
     # plot overview of satellite products and predictions
 
     if pscale_cred is None:
@@ -598,7 +598,7 @@ def plot_predictions_osse(LON, LAT, To, dTds1o, dTds2o, dTdto, muSstar, Kxstar_v
     
     if bool_reference_velocity:
         imshow(ax[0,0],LONr,LATr,np.sqrt(ur**2+vr**2),cmap=cmapspeed,vmin=plimspeed[0],vmax=plimspeed[1])
-        quiver(ax[0,0],LONr,LATr,ur,vr,scale=pscale,an=False,color='b')
+        quiver(ax[0,0],LONr,LATr,ur,vr,scale=pscale,an=False,color='b',nx=nxr,ny=nyr)
     elif bool_original_data:
         ax[0,3].axis('off')
         ax[1,1].axis('off')

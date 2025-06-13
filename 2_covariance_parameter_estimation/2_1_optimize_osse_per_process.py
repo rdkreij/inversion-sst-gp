@@ -1,13 +1,13 @@
-import xarray as xr
-import numpy as np
-import pandas as pd
 import os
 
-from inversion_sst_gp import utils, gp_regression
+import numpy as np
+import pandas as pd
+import xarray as xr
+from inversion_sst_gp import gp_regression, utils
 
 # Set target time and load dataset
 time_str = "2014-02-19T18:00:00"
-dataset_path = "data/suntans_1h.nc"
+dataset_path = "1_preproc_data/proc_data/suntans_1h.nc"
 ds = xr.open_dataset(dataset_path).sel(time=np.datetime64(time_str))
 
 # Extract variables
@@ -46,7 +46,7 @@ theta["sigma_S"], theta["l_S"], theta["tau_S"] = gp_regression.estimate_params_p
 theta["time"] = time_str
 
 # Save hyperparameters to CSV
-intermediate_dir = "2_covariance_parameter_estimation/intermediate"
-os.makedirs(intermediate_dir, exist_ok=True)
-output_path = f"{intermediate_dir}/num_model_estimated_t.csv"
+outputs_dir = "2_covariance_parameter_estimation/outputs"
+os.makedirs(outputs_dir, exist_ok=True)
+output_path = f"{outputs_dir}/num_model_estimated_t.csv"
 pd.DataFrame([theta]).to_csv(output_path, index=False)

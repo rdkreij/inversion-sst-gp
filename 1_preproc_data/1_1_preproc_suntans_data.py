@@ -1,6 +1,7 @@
 import xarray as xr
 import numpy as np
 from scipy.interpolate import griddata
+import os
 
 from inversion_sst_gp import utils, simulate_obs
 
@@ -17,21 +18,21 @@ PROCESSED_DIR = "1_preproc_data/proc_data"
 TEST_CONFIGS = [
     {
         'name': 'measurement_error',
-        'val_range': np.arange(0, 0.016, 0.001),
+        'val_range': np.round(np.arange(0, 0.015 + 0.0001, 0.001),3),
         'dataset_name': "suntans_measurement_error",
         'param_name': 'sigma_tau',
         'time_dependent': False,
     },
     {
         'name': 'sparse_cloud',
-        'val_range': np.linspace(0, .75, 26),
+        'val_range': np.round(np.arange(0, 0.75 + 0.001, 0.03),2),
         'dataset_name': "suntans_sparse_cloud",
         'param_name': 'coverage_sparse',
         'time_dependent': False,
     },
     {
         'name': 'dense_cloud',
-        'val_range': np.linspace(0, .75, 26),
+        'val_range': np.round(np.arange(0, 0.75 + 0.001, 0.03),2),
         'dataset_name': "suntans_dense_cloud",
         'param_name': 'coverage_dense',
         'time_dependent': False,
@@ -221,8 +222,7 @@ if __name__ == "__main__":
     print("OSSE snapshot prepared.\n")
     
     # Create processed directory if it doesn't exist
-    if not utils.check_dir(PROCESSED_DIR):
-        print(f"Creating directory: {PROCESSED_DIR}")
+    os.makedirs(PROCESSED_DIR, exist_ok=True)
 
     # Run all tests defined in TEST_CONFIGS
     for test_config in TEST_CONFIGS:

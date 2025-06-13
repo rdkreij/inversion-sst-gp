@@ -49,7 +49,7 @@ prop_sat = {
 }
 
 # Load Himawari data
-ds = xr.open_dataset("data/himawari.nc").sel(time=np.datetime64(time_str))
+ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(time=np.datetime64(time_str))
 time_step = ds.time_step.item()
 lon, lat, To, dTdto = (
     ds[var].values for var in ("lon", "lat", "T", "dTdt")

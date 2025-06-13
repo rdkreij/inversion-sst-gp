@@ -3,7 +3,6 @@ import sys
 
 import numpy as np
 import xarray as xr
-
 from inversion_sst_gp import gp_regression, metrics, other_methods, utils
 
 # Parse command-line arguments
@@ -19,7 +18,7 @@ time_base = np.datetime64(time_base_str)
 # Set model hyperparameters
 if model_type == "gprm":
     theta = utils.extract_params(
-        "outputs/num_model_estimated_t.csv", "time", time_base_str, type="num_est"
+        "2_covariance_parameter_estimation/outputs/num_model_estimated_t.csv", "time", time_base_str, type="num_est"
     )
     prop_osse = {
         "initial_params": {"sigma_tau": 0.01},
@@ -71,7 +70,7 @@ elif model_type == "gprm_e":
     }
 
 elif model_type == "optimum":
-    ds_base = xr.open_dataset("data/suntans_1h.nc").sel(time=time_base)
+    ds_base = xr.open_dataset("1_preproc_data/proc_data/suntans_1h.nc").sel(time=time_base)
 
     lon, lat, To, dTdto, u, v, S = (
         ds_base[var].values for var in ("lon", "lat", "T", "dTdt", "u", "v", "S")
@@ -112,19 +111,19 @@ elif model_type == "optimum":
     }
 # Load test dataset
 if test_type == "noise":
-    ds = xr.open_dataset("data/suntans_measurement_error.nc").sel(noise=step)
+    ds = xr.open_dataset("1_preproc_data/proc_data/suntans_measurement_error.nc").sel(sigma_tau=step)
 elif test_type == "time_24h":
-    ds = xr.open_dataset("data/suntans_24h.nc").sel(
+    ds = xr.open_dataset("1_preproc_data/proc_data/suntans_24h.nc").sel(
         time=time_base + np.timedelta64(int(step), "s")
     )
 elif test_type == "time_1h":
-    ds = xr.open_dataset("data/suntans_1h.nc").sel(
+    ds = xr.open_dataset("1_preproc_data/proc_data/suntans_1h.nc").sel(
         time=time_base + np.timedelta64(int(step), "s")
     )
 elif test_type == "cloud_sparse":
-    ds = xr.open_dataset("data/suntans_sparse_cloud.nc").sel(coverage_sparse=step)
+    ds = xr.open_dataset("1_preproc_data/proc_data/suntans_sparse_cloud.nc").sel(coverage_sparse=step)
 elif test_type == "cloud_dense":
-    ds = xr.open_dataset("data/suntans_dense_cloud.nc").sel(coverage_dense=step)
+    ds = xr.open_dataset("1_preproc_data/proc_data/suntans_dense_cloud.nc").sel(coverage_dense=step)
 else:
     raise ValueError(f"Unknown test_type: {test_type}")
 

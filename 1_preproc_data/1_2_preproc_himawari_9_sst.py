@@ -1,6 +1,7 @@
 import xarray as xr
 import pandas as pd
 import numpy as np
+import os
 
 from inversion_sst_gp import utils
 
@@ -131,8 +132,7 @@ if __name__ == "__main__":
     if ds_list:
         ds_combined = xr.concat(ds_list, dim="time")
         output_file_path = f"{PROCESSED_DIR}/himawari.nc"
-        if not utils.check_dir(PROCESSED_DIR):
-            print(f"Creating directory: {PROCESSED_DIR}")
+        os.makedirs(PROCESSED_DIR, exist_ok=True)
         ds_combined.to_netcdf(output_file_path)
         print(f"Combined Himawari SST data saved to {output_file_path}")
     else:
