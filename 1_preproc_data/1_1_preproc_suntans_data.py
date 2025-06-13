@@ -9,7 +9,7 @@ from inversion_sst_gp import utils, simulate_obs
 LON_LIMITS = (115, 118)
 LAT_LIMITS = (-15.5, -12.5)
 HIMAWARI_GRID_PATH = "1_preproc_data/proc_data/himawari.nc"
-OCEAN_MODEL_DATA_PATH = '1_preproc_data/non_proc_data/suntans/suntans_surface_prop_argo_abyssal_plain_.nc'
+OCEAN_MODEL_DATA_PATH = '1_preproc_data/non_proc_data/suntans/suntans_surface_prop_north_australian_basin.nc'
 OSSE_SNAPSHOT_TIME = np.datetime64('2014-02-19T18:00:00')
 TIME_STEP = 3600  # seconds
 PROCESSED_DIR = "1_preproc_data/proc_data"
