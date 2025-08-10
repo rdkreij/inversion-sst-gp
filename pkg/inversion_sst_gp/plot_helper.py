@@ -851,7 +851,7 @@ def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None
 
     i=0
     imshow(ax[0,i],LON,LAT,Ro,cmap=cmapRo,vmin=plimRo[0],vmax=plimRo[1])
-    add_colorbar(fig,ax[0,i],'left',plimRo,cmapRo,cbr,cbd,cbw,label=r'$\textrm{Ro}$') 
+    add_colorbar(fig,ax[0,i],'left',plimRo,cmapRo,cbr,cbd,cbw,label=r'$\textrm{Ro}_t$') 
 
     if u is not None:
         quiver(ax[0,i],LON,LAT,u,v,nx=nx,ny=ny,scale=pscale,an=True,l_unit='m$\,$s$^{-1}$')
@@ -874,7 +874,7 @@ def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None
         ax[0,i].legend()
     else:
         ax[0,i].hist(Ro.flatten(),bins=bins,density=True,fc='grey',ec='k')
-    ax[0,i].set(xlabel=r'$\textrm{Ro}$',ylabel='Relative frequency')
+    ax[0,i].set(xlabel=r'$\textrm{Ro}_t$',ylabel='Empirical density')
     if pdf_max is not None:
         ax[0,i].set_ylim([0,pdf_max])
     else:
