@@ -909,10 +909,7 @@ def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None
     else:
         plt.close(fig)
  
-def plot_particle_tracking(list_dict_tracks,lon,lat,muustar,muvstar,Kxstar_vel,T,pscale=1,plt_show=True,return_fig=False):   
-    latlimsp = [-14.9,-14.15]
-    lonlimsp = [116.65,117.5]
-
+def plot_particle_tracking(list_dict_tracks,lon,lat,muustar,muvstar,Kxstar_vel,T,lonlimsp,latlimsp,pscale=1,plt_show=True,return_fig=False):   
     LON, LAT = np.meshgrid(lon,lat)
 
     crop_lon = (lon >= lonlimsp[0]) & (lon <= lonlimsp[1])
