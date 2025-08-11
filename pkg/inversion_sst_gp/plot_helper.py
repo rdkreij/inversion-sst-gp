@@ -317,7 +317,7 @@ def annotate_corner(ax,text,fontsize=12,fig=None,box=True,buffer=0):
         ax.add_patch(corner_square)
     ax.text(mw/axis_width_points,1-(mn+fontsize)/axis_height_points,text,va='bottom',ha='left',transform=ax.transAxes,fontsize=fontsize,zorder=100)
 
-def visualize_data(LON, LAT, T, dTdt, dTds1, dTds2, u=None, v=None, lonlims=None, latlims=None, plimT=None, plimTgrad = None, plimdTdt=None, plimspeed=None, pscale=4, nx=17, ny=17, plt_show=True, return_fig=False, label_obs = True):    
+def visualize_data(LON, LAT, T, dTdt, dTds1, dTds2, u=None, v=None, lonlims=None, latlims=None, plimT=None, plimTgrad = None, plimdTdt=None, plimspeed=None, pscale=4, nx=17, ny=17, plt_show=False, return_fig=False, label_obs = True):    
     bool_velocity = (u is not None) and (v is not None)
     
     mn = .3
@@ -453,7 +453,7 @@ def visualize_data(LON, LAT, T, dTdt, dTds1, dTds2, u=None, v=None, lonlims=None
         plt.close(fig)
         return
     
-def plot_predictions_osse(LON, LAT, To, dTds1o, dTds2o, dTdto, muSstar, Kxstar_vel, stdSstar, muustar, muvstar, lonlims, latlims, u=None, v=None, S=None, LONr=None, LATr=None, ur=None, vr=None, ugos=None, vgos=None, Sgos=None, params=None, datet=None, plimT=None, plimdTdt=None, plimTgrad=None, plimstdS=None, plimspeed=None, pscale=4, nx=17, ny=17, pscale_cred=None, plt_show=True, return_fig=False,nxr=None,nyr=None):    
+def plot_predictions_osse(LON, LAT, To, dTds1o, dTds2o, dTdto, muSstar, Kxstar_vel, stdSstar, muustar, muvstar, lonlims, latlims, u=None, v=None, S=None, LONr=None, LATr=None, ur=None, vr=None, ugos=None, vgos=None, Sgos=None, params=None, datet=None, plimT=None, plimdTdt=None, plimTgrad=None, plimstdS=None, plimspeed=None, pscale=4, nx=17, ny=17, pscale_cred=None, plt_show=False, return_fig=False,nxr=None,nyr=None):    
     # plot overview of satellite products and predictions
 
     if pscale_cred is None:
@@ -749,7 +749,7 @@ def lon_transect(ax, lon, z_mu, z_std, lonlims, xtickspacing, z_true=None, title
     ax.set(ylabel=ylabel, xlabel = xlabel, title = title)
     pass
 
-def plot_transects(transect_fully_observed, transect_measurement_error, transect_dense_cloud, transect_sparse_cloud, lonlims, ylims,plt_show=True, return_fig=False):
+def plot_transects(transect_fully_observed, transect_measurement_error, transect_dense_cloud, transect_sparse_cloud, lonlims, ylims,plt_show=False, return_fig=False):
     fig, ax = plt.subplots(2,2, figsize = (10,4.2), gridspec_kw={'hspace':0,'wspace':0})
 
     for i,dic in enumerate([transect_fully_observed,transect_measurement_error,transect_dense_cloud,transect_sparse_cloud]):
@@ -788,7 +788,7 @@ def plot_transects(transect_fully_observed, transect_measurement_error, transect
     else:
         plt.close(fig)
         
-def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None, u=None, v=None, nx=17,ny=17,pscale=4, LONr=None,LATr=None,Ror=None, plt_show=True, return_fig=False):
+def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None, u=None, v=None, nx=17,ny=17,pscale=4, LONr=None,LATr=None,Ror=None, plt_show=False, return_fig=False):
     if LONr is None:
         bool_ref = False
     else:
@@ -909,7 +909,7 @@ def plot_dynamic_rossby(LON,LAT,Ro,lonlims,latlims,Ro_max = None, pdf_max = None
     else:
         plt.close(fig)
  
-def plot_particle_tracking(list_dict_tracks,lon,lat,muustar,muvstar,Kxstar_vel,T,lonlimsp,latlimsp,pscale=1,plt_show=True,return_fig=False):   
+def plot_particle_tracking(list_dict_tracks,lon,lat,muustar,muvstar,Kxstar_vel,T,lonlimsp,latlimsp,pscale=1,plt_show=False,return_fig=False):   
     LON, LAT = np.meshgrid(lon,lat)
 
     crop_lon = (lon >= lonlimsp[0]) & (lon <= lonlimsp[1])
@@ -1045,7 +1045,7 @@ def plot_noise_metrics(
     df_noise_gp_obs_t,
     df_noise_gp_num_t,
     df_noise_gos_t,
-    plt_show=True,
+    plt_show=False,
     return_fig=False,
     ):
     fig, ax = plt.subplots(1,2,figsize=(9,3), constrained_layout=True)
@@ -1090,7 +1090,7 @@ def plot_time_metrics(
     df_time_24h_gp_num_t,
     df_time_24h_gp_num_t1,
     df_time_24h_gos_t,
-    plt_show=True,
+    plt_show=False,
     return_fig=False,
 ):
     fig, ax = plt.subplots(2,2,figsize=(9,6), constrained_layout=True)
@@ -1170,7 +1170,7 @@ def plot_cloud_metrics(
     df_cloud_dense_gp_obs_t,
     df_cloud_sparse_gp_num_t,
     df_cloud_sparse_gp_obs_t,
-    plt_show=True,
+    plt_show=False,
     return_fig=False,
 ):
     fig, ax = plt.subplots(2,2,figsize=(9,6), constrained_layout=True)
