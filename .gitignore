@@ -2,5 +2,4 @@
 *.ipynb_checkpoints
 *.venv
 *intermediate
-1_preproc_data/non_proc_data/
 2_covariance_parameter_estimation/intermediate/

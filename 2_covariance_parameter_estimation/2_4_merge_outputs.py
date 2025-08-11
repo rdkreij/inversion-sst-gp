@@ -1,11 +1,15 @@
 import json
 import os
+
 import pandas as pd
+
 
 def load_json(path):
     """Load JSON file and return as Python dict."""
     with open(path, 'r') as f:
         return json.load(f)
+
+print('--- Merging outputs from covariance parameter estimation ---')
 
 # Folder containing JSON files
 main_folder = '2_covariance_parameter_estimation/intermediate'
@@ -56,6 +60,7 @@ step_key_map = {
     'satellite': 'time'
 }
 
+print("Starting to process files...")
 for data_type, labels in type_label_dict.items():
     print(f"Processing {data_type}...")
 
@@ -79,6 +84,8 @@ for data_type, labels in type_label_dict.items():
             continue
         else:
             print(f"Found {len(file_names)} files for {label} in {data_type}.")
+        
+        step_column = step_key_map[data_type]
         records = []
         for file_name in file_names:
             data = load_json(os.path.join(main_folder, file_name))
@@ -88,7 +95,6 @@ for data_type, labels in type_label_dict.items():
                 data.update(data.pop('est_params', {}))
 
             # Rename step key
-            step_column = step_key_map[data_type]
             data[step_column] = data.pop("step")
 
             records.append(data)
@@ -101,3 +107,5 @@ for data_type, labels in type_label_dict.items():
         df = pd.DataFrame(records).set_index(step_column).sort_index()
         output_path = f'{output_dir}/{data_type}_{label_output}.csv'
         df.to_csv(output_path)
+        
+print("Finished processing.")

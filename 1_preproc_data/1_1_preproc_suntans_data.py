@@ -150,6 +150,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
         np.empty((len(val_range), Ny, Nx)),
     )
     time_coords = []
+    current_time_for_osse = None  # Ensure variable is always defined
 
     for i, val in enumerate(val_range):
         # Determine the source dataset for this iteration
