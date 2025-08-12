@@ -1,7 +1,7 @@
 import xarray as xr
 import os
 
-# --- Configuration ---
+# Configuration
 LON_LIMITS = (115, 118)
 LAT_LIMITS = (-15.5, -12.5)
 ALTIMETRY_DATA_DIR = "1_preproc_data/non_proc_data/altimetry"
@@ -9,14 +9,12 @@ PROCESSED_DIR = "1_preproc_data/proc_data"
 OUTPUT_FILENAME = "altimeter_currents.nc"
 
 
-# --- Main Processing Function ---
+# Main processing function
 def process_altimetry_data(altimetry_dir, lon_limits, lat_limits):
     """
     Loads raw altimetry data, selects a geographical region,
     and returns a processed xarray Dataset.
     """
-    print("Loading and processing altimetry data...")
-
     # Get all NetCDF files in the directory
     geo_files = [f for f in os.listdir(altimetry_dir) if f.endswith(".nc")]
     geo_paths = [os.path.join(altimetry_dir, f) for f in geo_files]
@@ -42,17 +40,17 @@ def process_altimetry_data(altimetry_dir, lon_limits, lat_limits):
             "lon": ds_geo_c.longitude.values,
         },
     )
-    print("Altimetry data processed.")
     return ds_geo
 
 
-# --- Main Execution ---
+# Main execution
 if __name__ == "__main__":
-    print("--- Starting Altimetry Data Processing Workflow ---")
+    print("--- Starting preprocessing altimetry data ---")
 
     # Ensure the processed data directory exists
     os.makedirs(PROCESSED_DIR, exist_ok=True)
 
+    print("Loading and processing altimetry data")
     # Process the altimetry data
     processed_altimetry_ds = process_altimetry_data(
         ALTIMETRY_DATA_DIR, LON_LIMITS, LAT_LIMITS
@@ -63,8 +61,7 @@ if __name__ == "__main__":
 
     # Save the processed dataset
     output_file_path = os.path.join(PROCESSED_DIR, OUTPUT_FILENAME)
-    print(f"Saving processed altimetry data to {output_file_path}...")
+    print(f"Saving processed altimetry data to {output_file_path}")
     processed_altimetry_ds.to_netcdf(output_file_path)
-    print("Altimetry data saved successfully.")
 
-    print("--- Altimetry Data Processing Workflow Complete ---")
+    print("Data processing complete")

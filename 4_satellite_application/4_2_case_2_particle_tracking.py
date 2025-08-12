@@ -1,5 +1,3 @@
-# pyright: reportTupleAssignmentMismatch=false
-
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,16 +10,18 @@ from inversion_sst_gp import (
     particle_tracking,
 )
 
+# Matplotlib configuration
+rc("font", family="serif", serif=["Computer Modern"])
+rc("text", usetex=True)
+rc("text.latex", preamble=r"\usepackage{amsmath}")
+
 def main():
-    print("Setting plotting parameters...")
-    rc("font", family="serif", serif=["Computer Modern"])
-    rc("text", usetex=True)
-    rc("text.latex", preamble=r"\usepackage{amsmath}")
+    print("--- Starting case 2: particle tracking ---")
 
     lonlims = (115, 118)
     latlims = (-15.5, -12.5)
 
-    print("Loading Himawari dataset...")
+    print("Loading Himawari dataset")
     time_himawari_str = "2023-12-18T01:00:00"
     ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(
         time=np.datetime64(time_himawari_str)
@@ -30,12 +30,8 @@ def main():
     lon, lat, To, dTdto = (ds[var].values for var in ("lon", "lat", "T", "dTdt"))
     lonc, latc, X, Y, LON, LAT = utils.calculate_grid_properties(lon, lat)
     dTds1o, dTds2o = utils.finite_difference_2d(X, Y, To)
-    print("Visualizing Himawari data...")
-    plot_helper.visualize_data(
-        LON, LAT, To, dTdto, dTds1o, dTds2o, lonlims=lonlims, latlims=latlims
-    )
 
-    print("Loading altimetry current data...")
+    print("Loading altimetry current data")
     time_altimetry_str = "2023-12-18T00:00:00"
     ds_altimetry = xr.open_dataset("1_preproc_data/proc_data/altimeter_currents.nc").sel(
         time=time_altimetry_str
@@ -45,14 +41,14 @@ def main():
     )
     _, _, _, _, LONr, LATr = utils.calculate_grid_properties(lonr, latr)
 
-    print("Extracting GP regression parameters...")
+    print("Extracting GP regression parameters")
     params_fully_obs_gp = utils.extract_params(
         "2_covariance_parameter_estimation/outputs/satellite_gp_obs_t.csv",
         "time",
         time_himawari_str,
         type="gp",
     )
-    print("Calculating GP regression prediction...")
+    print("Calculating GP regression prediction")
     muustar, muvstar, muSstar, stdustar, stdvstar, stdSstar, Kxstar_vel, Kxstar = (
         gp_regression.calculate_prediction_gpregression(
             dTds1o, dTds2o, dTdto, params_fully_obs_gp, X, Y, time_step, return_Kxstar=True
@@ -62,7 +58,7 @@ def main():
     latlimsp = (-14.9, -14.15)
     lonlimsp = (116.65, 117.5)
 
-    print("Plotting predictions and subregion...")
+    print("Plotting predictions and subregion")
     fig, ax = plot_helper.plot_predictions_osse(
         LON,
         LAT,
@@ -99,19 +95,21 @@ def main():
             linewidth=1,
         )
     )
+    file_name = "4_satellite_application/figures/satellite_case_2_prediction.png"
+    print(f"Saving figure to {file_name}")
     fig.savefig(
-        "4_satellite_application/figures/satellite_case_2_prediction.png",
+        file_name,
         bbox_inches="tight",
         dpi=300,
     )
 
-    print("Simulating velocity fields from prediction...")
+    print("Simulating velocity fields from prediction")
     np.random.seed(0)
     us, vs = particle_tracking.simulate_flow_fields(
         Kxstar, muustar, muvstar, len(lat), len(lon), 50
     )
 
-    print("Tracking particles over simulated velocity fields...")
+    print("Tracking particles over simulated velocity fields")
     tstep = 120
     Nstep = 24 * 30
     release_coords_1 = (116.9, -14.5)
@@ -137,7 +135,7 @@ def main():
         }
         list_dict_tracks.append(dict_particle)
 
-    print("Plotting particle tracking...")
+    print("Plotting particle tracking")
     fig, ax = plot_helper.plot_particle_tracking(
         list_dict_tracks,
         lon,
@@ -151,13 +149,15 @@ def main():
         pscale=5,
         return_fig=True,
     )
+    file_name = "4_satellite_application/figures/satellite_case_2_particle_tracking.png"
+    print(f"Saving particle tracking figure to {file_name}")
     fig.savefig(
-        "4_satellite_application/figures/satellite_case_2_particle_tracking.png",
+        file_name,
         bbox_inches="tight",
         dpi=300,
     )
-    print("Particle tracking figure saved.")
-
+    
+    print('Finished processing and saving figures')
 
 if __name__ == "__main__":
     main()

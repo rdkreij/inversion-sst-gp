@@ -1,4 +1,4 @@
-### How to obtain the SST data in the `./proc_data` folder
+### How to obtain the processed data in the `./proc_data` folder
 
 ---
 #### SUNTANS surface currents and surface temperature

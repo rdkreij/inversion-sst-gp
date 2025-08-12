@@ -5,7 +5,7 @@ import os
 
 from inversion_sst_gp import utils
 
-# --- Configuration ---
+# Configuration
 # Define geographical and temporal boundaries for data processing
 LON_LIMITS = (115, 118)
 LAT_LIMITS = (-15.5, -12.5)  # Note: xarray sel uses [min, max], so flip for slicing
@@ -21,7 +21,7 @@ PROCESSED_DIR = "1_preproc_data/proc_data"
 PRODUCT_NAME = "STAR-L3C_GHRSST-SSTsubskin-AHI_H09-ACSPO_V2.90-v02.0-fv01.0"
 
 
-# --- Helper Functions ---
+# Helper functions
 def get_himawari_file_path(time_str):
     """Constructs the file path for a Himawari NetCDF file."""
     time_id = pd.to_datetime(time_str).strftime("%Y%m%d%H%M%S")
@@ -65,10 +65,10 @@ def get_sst_time_series_data(time_str):
     return lon, lat, T_curr, T_prev, T_next, current_time
 
 
-# --- Main Processing Function ---
+# Main Processing Function
 def process_himawari_sst_data(time_str):
     """Processes Himawari SST data and calculates temporal/spatial gradients."""
-    print(f"  Starting processing for {time_str}...")
+    print(f"  Starting processing for {time_str}")
     lon, lat, T_curr, T_prev, T_next, current_time = get_sst_time_series_data(time_str)
 
     # Apply 3x3 window averaging to reduce resolution and noise
@@ -114,20 +114,21 @@ def process_himawari_sst_data(time_str):
             "dTdy": (["time","lat", "lon"], dTdy),
         },
     )
-    print(f"  Finished processing for {time_str}.")
+    print(f"  Finished processing for {time_str}")
     return ds
 
 
-# --- Main Execution ---
+# Main Execution
 if __name__ == "__main__":
-    print("--- Starting Himawari SST Data Processing Workflow ---")
+    print("--- Starting preprocessing Himawari-9 SST ---")
 
+    print("Loading Himawari SST data")
     ds_list = []
     for i, time_str in enumerate(TIME_STR_LIST):
         processed_ds = process_himawari_sst_data(time_str)
         ds_list.append(processed_ds)
     
-    print("\n--- Merging processed datasets and saving ---")
+    print("Merging processed datasets and saving")
     # Merge by time dimension
     if ds_list:
         ds_combined = xr.concat(ds_list, dim="time")
@@ -138,4 +139,4 @@ if __name__ == "__main__":
     else:
         print("No datasets were processed to merge.")
 
-    print("--- Himawari SST Data Processing Workflow Complete ---")
+    print("Data processing complete")

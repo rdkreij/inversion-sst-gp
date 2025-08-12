@@ -10,6 +10,7 @@ from inversion_sst_gp import (
     gp_regression,
 )
 
+# Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
 rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
@@ -18,6 +19,7 @@ rc("text.latex", preamble=r"\usepackage{amsmath}")
 lonlims = (115, 118)
 latlims = (-15.5, -12.5)
 
+# Helper functions
 def load_and_prepare_dataset(path, selection_key=None, selection_val=None):
     print(f"Loading dataset: {path}")
     ds = xr.open_dataset(path)
@@ -60,7 +62,7 @@ def run_gp_regression_and_metrics(dTds1o, dTds2o, dTdto, params_path, param_key,
         dTds1o, dTds2o, dTdto, params, X, Y, time_step
     )
     print("Calculating GP metrics")
-    metrics_gp = metrics.overview(u, v, muustar, muvstar, stdustar, stdvstar, print_bool=True)
+    metrics_gp = metrics.overview(u, v, muustar, muvstar, stdustar, stdvstar, print_bool=False)
     return muustar, muvstar, muSstar, stdustar, stdvstar, stdSstar, Kxstar_vel, metrics_gp
 
 def run_global_optimal_solution(dTds1o, dTds2o, dTdto, params_path, param_key, param_val, param_type, u, v):
@@ -70,7 +72,7 @@ def run_global_optimal_solution(dTds1o, dTds2o, dTdto, params_path, param_key, p
     print(f"Calculating Global Optimal Solution with n={n_gos}")
     ugos, vgos, Sgos = other_methods.calculate_prediction_gos(dTds1o, dTds2o, dTdto, n_gos)
     print("Calculating GOS metrics")
-    metrics_gos = metrics.overview(u, v, ugos, vgos, print_bool=True)
+    metrics_gos = metrics.overview(u, v, ugos, vgos, print_bool=False)
     return ugos, vgos, Sgos, metrics_gos
 
 def plot_and_save_predictions(
@@ -246,6 +248,7 @@ def plot_and_save_transects(transect_fully_observed, transect_measurement_error,
     )
 
 def main():
+    print('--- Running individual cases for OSSE ---')
     transect_fully_observed = experiment_fully_observed()
     transect_measurement_error = experiment_measurement_error(noise=0.005)
     transect_dense_cloud = experiment_dense_cloud(coverage_dense=0.3)

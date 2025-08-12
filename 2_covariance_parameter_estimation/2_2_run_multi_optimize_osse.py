@@ -16,7 +16,7 @@ def run_osse(
 
     Parameters
     ----------
-    step : float
+    step : float | int
         Step size (seconds for time-based tests, sigma_tau for noise, etc.).
     model_type : str
         Model type: "gos", "gprm", "gprm_e", or "optimum".
@@ -37,7 +37,7 @@ def run_osse(
 
     time_base = np.datetime64(time_base_str)
 
-    # --- Set model hyperparameters ---
+    # Set model hyperparameters
     if model_type == "gprm":
         theta = utils.extract_params(
             "2_covariance_parameter_estimation/outputs/num_model_estimated_t.csv",
@@ -126,7 +126,7 @@ def run_osse(
     else:
         prop_osse = None  # For "gos" case
 
-    # --- Load test dataset ---
+    # Load test dataset
     if test_type == "noise":
         ds = xr.open_dataset("1_preproc_data/proc_data/suntans_measurement_error.nc").sel(sigma_tau=step)
     elif test_type == "time_24h":
@@ -148,10 +148,10 @@ def run_osse(
     lon, lat, To, dTdto, u, v, _ = (
         ds[var].values for var in ("lon", "lat", "T", "dTdt", "u", "v", "S")
     )
-    lonc, latc, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
+    _, _, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
     dTds1o, dTds2o = utils.finite_difference_2d(X, Y, To)
 
-    # --- Helper functions ---
+    # Helper functions
     def run_gos_optim(step, dTds1, dTds2, dTdt, u, v):
         gos = other_methods.GlobalOptimalSolution(dTds1, dTds2, dTdt)
         n = gos.optimize_n(u, v)
@@ -173,13 +173,13 @@ def run_osse(
             "coverage90": results["coverage90"],
         }
 
-    # --- Run model ---
+    # Run model
     if model_type == "gos":
         results = run_gos_optim(step, dTds1o, dTds2o, dTdto, u, v)
     else:
         results = run_gprm_optim(step, dTds1o, dTds2o, dTdto, u, v, X, Y, tstep, prop_osse)
 
-    # --- Save results ---
+    # Save results
     if save_results:
         intermediate_dir = "2_covariance_parameter_estimation/intermediate"
         os.makedirs(intermediate_dir, exist_ok=True)
@@ -188,7 +188,7 @@ def run_osse(
     return results
 
 def main():
-    print("--- Starting GP hyperparameter estimation OSSE ---")
+    print("--- Starting multi optimize hyperparameter OSSE ---")
     
     # Mapping from test_type → steps list and models list
     step_map = {

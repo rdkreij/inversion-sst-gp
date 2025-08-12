@@ -1,5 +1,3 @@
 */__pycache__/*
 *.ipynb_checkpoints
 *.venv
-*intermediate
-2_covariance_parameter_estimation/intermediate/

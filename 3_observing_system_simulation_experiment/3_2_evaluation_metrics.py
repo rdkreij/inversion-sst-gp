@@ -1,15 +1,15 @@
 import pandas as pd
-import xarray as xr
 from inversion_sst_gp import plot_helper
 from matplotlib import rc
 
+# Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
 rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
 
-
+# Helper functions
 def load_time_series_data():
-    print("Loading time series scoring data.")
+    print("Loading time series scoring data")
     dfs = {}
     dfs['1h_gp_obs_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/time_1h_gp_obs_t.csv")
     dfs['1h_gp_num_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/time_1h_gp_num_t.csv")
@@ -24,7 +24,7 @@ def load_time_series_data():
 
 
 def plot_time_series_metrics(dfs):
-    print("Plotting time series metrics figure.")
+    print("Plotting time series metrics figure")
     fig, ax = plot_helper.plot_time_metrics(
         dfs['1h_gp_obs_t'],
         dfs['1h_gp_num_t'],
@@ -44,7 +44,7 @@ def plot_time_series_metrics(dfs):
 
 
 def load_noise_experiment_data():
-    print("Loading measurement error noise experiment data.")
+    print("Loading measurement error noise experiment data")
     dfs = {}
     dfs['noise_gp_obs_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/noise_gp_obs_t.csv")
     dfs['noise_gp_num_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/noise_gp_num_t.csv")
@@ -53,7 +53,7 @@ def load_noise_experiment_data():
 
 
 def plot_noise_metrics(dfs):
-    print("Plotting noise experiment metrics figure.")
+    print("Plotting noise experiment metrics figure")
     fig, ax = plot_helper.plot_noise_metrics(
         dfs['noise_gp_obs_t'],
         dfs['noise_gp_num_t'],
@@ -68,7 +68,7 @@ def plot_noise_metrics(dfs):
 
 
 def load_cloud_experiment_data():
-    print("Loading cloud experiment data.")
+    print("Loading cloud experiment data")
     dfs = {}
     dfs['cloud_dense_gp_obs_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/cloud_dense_gp_obs_t.csv")
     dfs['cloud_dense_gp_num_t'] = pd.read_csv("2_covariance_parameter_estimation/outputs/cloud_dense_gp_num_t.csv")
@@ -78,7 +78,7 @@ def load_cloud_experiment_data():
 
 
 def plot_cloud_metrics(dfs):
-    print("Plotting cloud experiment metrics figure.")
+    print("Plotting cloud experiment metrics figure")
     fig, ax = plot_helper.plot_cloud_metrics(
         dfs['cloud_dense_gp_num_t'],
         dfs['cloud_dense_gp_obs_t'],
@@ -93,7 +93,7 @@ def plot_cloud_metrics(dfs):
     )
 
 if __name__ == "__main__":
-    # Run the segments
+    print('--- Generating figures for OSSE evaluation metrics ---')
     time_series_dfs = load_time_series_data()
     plot_time_series_metrics(time_series_dfs)
 
@@ -103,4 +103,4 @@ if __name__ == "__main__":
     cloud_dfs = load_cloud_experiment_data()
     plot_cloud_metrics(cloud_dfs)
     
-    print("All figures generated successfully.")
+    print("All figures generated successfully")

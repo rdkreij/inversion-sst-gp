@@ -1,5 +1,3 @@
-# pyright: reportTupleAssignmentMismatch=false
-
 import xarray as xr
 import numpy as np
 from matplotlib import rc
@@ -10,16 +8,17 @@ from inversion_sst_gp import (
     gp_regression,
 )
 
-def main():
-    print("Setting plotting parameters...")
-    rc("font", family="serif", serif=["Computer Modern"])
-    rc("text", usetex=True)
-    rc("text.latex", preamble=r"\usepackage{amsmath}")
+# Matplotlib configuration
+rc("font", family="serif", serif=["Computer Modern"])
+rc("text", usetex=True)
+rc("text.latex", preamble=r"\usepackage{amsmath}")
 
+def main():
+    print("--- Starting case 1: Rossby number ---")
     lonlims = (115, 118)
     latlims = (-15.5, -12.5)
 
-    print("Loading Himawari dataset...")
+    print("Loading Himawari dataset")
     time_himawari_str = "2023-09-22T04:00:00"
     ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(
         time=np.datetime64(time_himawari_str)
@@ -28,12 +27,8 @@ def main():
     lon, lat, To, dTdto = (ds[var].values for var in ("lon", "lat", "T", "dTdt"))
     lonc, latc, X, Y, LON, LAT = utils.calculate_grid_properties(lon, lat)
     dTds1o, dTds2o = utils.finite_difference_2d(X, Y, To)
-    print("Visualizing Himawari data...")
-    plot_helper.visualize_data(
-        LON, LAT, To, dTdto, dTds1o, dTds2o, lonlims=lonlims, latlims=latlims
-    )
 
-    print("Loading altimetry current data...")
+    print("Loading altimetry current data")
     time_altimetry_str = "2023-09-22T00:00:00"
     ds_altimetry = xr.open_dataset("1_preproc_data/proc_data/altimeter_currents.nc").sel(
         time=time_altimetry_str
@@ -43,21 +38,21 @@ def main():
     )
     _, _, Xr, Yr, LONr, LATr = utils.calculate_grid_properties(lonr, latr)
 
-    print("Extracting GP regression parameters...")
+    print("Extracting GP regression parameters")
     params_fully_obs_gp = utils.extract_params(
         "2_covariance_parameter_estimation/outputs/satellite_gp_obs_t.csv",
         "time",
         time_himawari_str,
         type="gp",
     )
-    print("Calculating GP regression prediction...")
+    print("Calculating GP regression prediction")
     muustar, muvstar, muSstar, stdustar, stdvstar, stdSstar, Kxstar_vel = (
         gp_regression.calculate_prediction_gpregression(
             dTds1o, dTds2o, dTdto, params_fully_obs_gp, X, Y, time_step
         )
     )
 
-    print("Plotting predictions...")
+    print("Plotting predictions")
     fig, ax = plot_helper.plot_predictions_osse(
         LON,
         LAT,
@@ -83,18 +78,20 @@ def main():
         nyr=16,
         return_fig=True,
     )
+    
+    file_name = "4_satellite_application/figures/satellite_case_1_prediction.png"
+    print(f"Saving figure to {file_name}")
     fig.savefig(
-        "4_satellite_application/figures/satellite_case_1_prediction.png",
+        file_name,
         bbox_inches="tight",
         dpi=300,
     )
-    print("Prediction figure saved.")
-
-    print("Calculating dynamic Rossby number...")
+    
+    print("Calculating dynamic Rossby number")
     Ro = utils.calculate_dynamic_rossby_number(X, Y, muustar, muvstar, LAT)
     Ror = utils.calculate_dynamic_rossby_number(Xr, Yr, ugos, vgos, LATr)
 
-    print("Plotting dynamic Rossby number...")
+    print("Plotting dynamic Rossby number")
     fig, ax = plot_helper.plot_dynamic_rossby(
         LON,
         LAT,
@@ -107,12 +104,16 @@ def main():
         Ror=Ror,
         return_fig=True,
     )
+    
+    file_name = "4_satellite_application/figures/satellite_case_1_rossby_number.png"
+    print(f"Saving Rossby number figure to {file_name}")
     fig.savefig(
-        "4_satellite_application/figures/satellite_case_1_rossby_number.png",
+        file_name,
         bbox_inches="tight",
         dpi=300,
     )
-    print("Rossby number figure saved.")
+    
+    print('Finished processing and saving figures')
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ import os
 
 from inversion_sst_gp import utils, simulate_obs
 
-# --- Configuration ---
+# Configuration
 LON_LIMITS = (115, 118)
 LAT_LIMITS = (-15.5, -12.5)
 HIMAWARI_GRID_PATH = "1_preproc_data/proc_data/himawari.nc"
@@ -53,8 +53,7 @@ TEST_CONFIGS = [
     },
 ]
 
-
-# --- Helper Functions ---
+# Helper functions
 def load_himawari_grid(path_himawari_file):
     """Loads the Himawari grid coordinates from a NetCDF file."""
     ds = xr.open_dataset(path_himawari_file)
@@ -126,7 +125,7 @@ def save_dataset(data_arrays, coords, dataset_name):
     print(f"Saved {dataset_name} to {output_path}")
 
 
-# --- Combined Test Function ---
+# Combined test function
 def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
     """
     Runs a specified OSSE test (time series or observation modification) based on provided config.
@@ -138,7 +137,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
     param_name = config['param_name']
     time_dependent = config['time_dependent']
 
-    print(f"Starting '{test_name}' test...")
+    print(f"Starting '{test_name}' test")
     np.random.seed(0)  # Set seed for reproducibility
 
     Ny, Nx = len(ds_grid.lat), len(ds_grid.lon)
@@ -204,23 +203,22 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
         coords["time"] = osse_snapshot_time
 
     save_dataset(data_arrays, coords, dataset_name)
-    print(f"Finished '{test_name}' test.\n")
+    print(f"Finished '{test_name}' test\n")
 
 
-# --- Main Execution ---
+# Main execution
 if __name__ == "__main__":
-    print("--- Starting OSSE Data Processing ---")
+    print("--- Starting preprocessing SUNTANS data---")
 
+    print("Loading Himawari grid")
     ds_himawari_grid = load_himawari_grid(HIMAWARI_GRID_PATH)
-    print("Himawari grid loaded.")
 
+    print("Loading OSSE dataset")
     ds_osse_full = xr.open_mfdataset(OCEAN_MODEL_DATA_PATH)
-    print("Full ocean model dataset loaded.")
 
     # Prepare single OSSE snapshot for non-time-dependent tests once
-    print("Preparing single OSSE snapshot for observation modification tests...")
+    print("Preparing single OSSE snapshot for observation modification tests")
     ds_osse_snapshot = interpolate_osse_to_grid(ds_osse_full, ds_himawari_grid, OSSE_SNAPSHOT_TIME)
-    print("OSSE snapshot prepared.\n")
     
     # Create processed directory if it doesn't exist
     os.makedirs(PROCESSED_DIR, exist_ok=True)
@@ -234,4 +232,4 @@ if __name__ == "__main__":
             # For non-time-dependent tests, pass the pre-computed snapshot
             run_osse_test(test_config, ds_osse_snapshot, ds_himawari_grid, OSSE_SNAPSHOT_TIME)
 
-    print("--- OSSE Data Processing Complete ---")
+    print("Data processing complete")

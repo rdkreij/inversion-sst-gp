@@ -27,16 +27,16 @@ def run_satellite(
         Results dictionary with estimated parameters.
     """
 
-    # --- Load Himawari data ---
+    # Load Himawari data
     ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(time=np.datetime64(time_str))
     lon, lat, To, dTdto = (
         ds[var].values for var in ("lon", "lat", "T", "dTdt")
     )
     tstep = ds.time_step.item()
-    lonc, latc, X, Y, LON, LAT = utils.calculate_grid_properties(lon, lat)
+    _, _, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
     dTds1o, dTds2o = utils.finite_difference_2d(X, Y, To)
 
-    # --- Set model hyperparameters ---
+    # Set model hyperparameters
     initial_params = {
         "sigma_u": 9e-2,
         "l_u": 3e4,
@@ -84,12 +84,12 @@ def run_satellite(
             "est_params": est_params,
         }
 
-    # --- Run model --- 
+    # Run model 
     results = run_gprm_optim(
         time_str, dTds1o, dTds2o, dTdto, X, Y, tstep, prop_sat
     )
     
-    # --- Save results ---
+    # Save results
     if save_results:
         intermediate_dir = "2_covariance_parameter_estimation/intermediate"
         os.makedirs(intermediate_dir, exist_ok=True)
@@ -98,7 +98,7 @@ def run_satellite(
     return results
 
 def main():
-    print("--- Starting GP hyperparameter estimation for satellite data ---")
+    print("--- Starting multi optimize hyperparameter satellite ---")
     
     # List of time strings for processing
     time_str_list = ["2023-09-22T04:00:00","2023-12-18T01:00:00"]
@@ -108,7 +108,7 @@ def main():
         print(f"Running task {id + 1}/{len(time_str_list)} for time {time_str}")
         run_satellite(time_str, str(id))
         
-    print("All tasks completed.")
+    print("All tasks completed")
 
 if __name__ == "__main__":
     main()
