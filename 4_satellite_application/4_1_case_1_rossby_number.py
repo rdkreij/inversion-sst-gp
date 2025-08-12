@@ -79,7 +79,7 @@ def main():
         return_fig=True,
     )
     
-    file_name = "4_satellite_application/figures/satellite_case_1_prediction.png"
+    file_name = "4_satellite_application/outputs/satellite_case_1_prediction.png"
     print(f"Saving figure to {file_name}")
     fig.savefig(
         file_name,
@@ -105,7 +105,7 @@ def main():
         return_fig=True,
     )
     
-    file_name = "4_satellite_application/figures/satellite_case_1_rossby_number.png"
+    file_name = "4_satellite_application/outputs/satellite_case_1_rossby_number.png"
     print(f"Saving Rossby number figure to {file_name}")
     fig.savefig(
         file_name,

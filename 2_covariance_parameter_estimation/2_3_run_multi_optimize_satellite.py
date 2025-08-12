@@ -28,7 +28,7 @@ def run_satellite(
     """
 
     # Load Himawari data
-    print(f"  Loading Himawari data for time {time_str}")
+    print(f"Loading Himawari data for time {time_str}")
     ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(time=np.datetime64(time_str))
     lon, lat, To, dTdto = (
         ds[var].values for var in ("lon", "lat", "T", "dTdt")
@@ -86,7 +86,7 @@ def run_satellite(
         }
 
     # Run model
-    print("  Running GP optimization")
+    print("Running GP optimization")
     results = run_gprm_optim(
         time_str, dTds1o, dTds2o, dTdto, X, Y, tstep, prop_sat
     )
@@ -96,7 +96,7 @@ def run_satellite(
         intermediate_dir = "2_covariance_parameter_estimation/intermediate"
         os.makedirs(intermediate_dir, exist_ok=True)
         file_name = f"{intermediate_dir}/satellite_{id}.json"
-        print(f"  Saving results to {file_name}")
+        print(f"Saving results to {file_name}")
         utils.save_json(results, file_name)
 
     return results
@@ -109,10 +109,10 @@ def main():
     
     # Run satellite processing for each time string
     for id, time_str in enumerate(time_str_list):
-        print(f"Running task {id + 1}/{len(time_str_list)} for time {time_str}")
+        print(f"\nRunning task {id + 1}/{len(time_str_list)} for time {time_str}")
         run_satellite(time_str, str(id))
         
-    print("All tasks completed")
+    print("\nAll tasks completed")
 
 if __name__ == "__main__":
     main()

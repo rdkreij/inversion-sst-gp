@@ -137,7 +137,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
     param_name = config['param_name']
     time_dependent = config['time_dependent']
 
-    print(f"Starting '{test_name}' test")
+    print(f"\nStarting '{test_name}' test")
     np.random.seed(0)  # Set seed for reproducibility
 
     Ny, Nx = len(ds_grid.lat), len(ds_grid.lon)
@@ -183,7 +183,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
             time_coords.append(current_time_for_osse)
 
         if (i + 1) % 10 == 0 or i == len(val_range) - 1:
-            print(f"  Progress: {i + 1}/{len(val_range)} for '{test_name}'")
+            print(f"Progress: {i + 1}/{len(val_range)} for '{test_name}'")
             
     data_arrays = {
         'T': ([param_name, 'lat', 'lon'], Toc),
@@ -203,7 +203,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
         coords["time"] = osse_snapshot_time
 
     save_dataset(data_arrays, coords, dataset_name)
-    print(f"Finished '{test_name}' test\n")
+    print(f"Finished '{test_name}' test")
 
 
 # Main execution
@@ -232,4 +232,4 @@ if __name__ == "__main__":
             # For non-time-dependent tests, pass the pre-computed snapshot
             run_osse_test(test_config, ds_osse_snapshot, ds_himawari_grid, OSSE_SNAPSHOT_TIME)
 
-    print("Data processing complete")
+    print("\nData processing complete")

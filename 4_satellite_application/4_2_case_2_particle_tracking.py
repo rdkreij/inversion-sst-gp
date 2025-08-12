@@ -95,7 +95,7 @@ def main():
             linewidth=1,
         )
     )
-    file_name = "4_satellite_application/figures/satellite_case_2_prediction.png"
+    file_name = "4_satellite_application/outputs/satellite_case_2_prediction.png"
     print(f"Saving figure to {file_name}")
     fig.savefig(
         file_name,
@@ -149,7 +149,7 @@ def main():
         pscale=5,
         return_fig=True,
     )
-    file_name = "4_satellite_application/figures/satellite_case_2_particle_tracking.png"
+    file_name = "4_satellite_application/outputs/satellite_case_2_particle_tracking.png"
     print(f"Saving particle tracking figure to {file_name}")
     fig.savefig(
         file_name,

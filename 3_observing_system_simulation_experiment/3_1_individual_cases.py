@@ -233,7 +233,7 @@ def experiment_fully_observed():
         ugos=ugos,
         vgos=vgos,
         Sgos=Sgos,
-        filename="3_observing_system_simulation_experiment/figures/osse_instance_fully_observed.png",
+        filename="3_observing_system_simulation_experiment/outputs/osse_instance_fully_observed.png",
     )
     transect = store_transect_data(
         data["lon"], data["To"], data["v"], muvstar, stdvstar
@@ -293,7 +293,7 @@ def experiment_measurement_error(noise=0.005):
         ugos=ugos,
         vgos=vgos,
         Sgos=Sgos,
-        filename="3_observing_system_simulation_experiment/figures/osse_instance_noise.png",
+        filename="3_observing_system_simulation_experiment/outputs/osse_instance_noise.png",
     )
     transect = store_transect_data(
         data["lon"], data["To"], data["v"], muvstar, stdvstar
@@ -341,7 +341,7 @@ def experiment_dense_cloud(coverage_dense=0.3):
         u=data["u"],
         v=data["v"],
         S=data["S"],
-        filename="3_observing_system_simulation_experiment/figures/osse_instance_dense_cloud.png",
+        filename="3_observing_system_simulation_experiment/outputs/osse_instance_dense_cloud.png",
     )
     transect = store_transect_data(
         data["lon"], data["To"], data["v"], muvstar, stdvstar
@@ -391,7 +391,7 @@ def experiment_sparse_cloud(coverage_sparse=0.3):
         u=data["u"],
         v=data["v"],
         S=data["S"],
-        filename="3_observing_system_simulation_experiment/figures/osse_instance_sparse_cloud.png",
+        filename="3_observing_system_simulation_experiment/outputs/osse_instance_sparse_cloud.png",
     )
     transect = store_transect_data(
         data["lon"], data["To"], data["v"], muvstar, stdvstar
@@ -415,7 +415,7 @@ def plot_and_save_transects(
         [-0.35, 0.25],
         return_fig=True,
     )
-    file_name = "3_observing_system_simulation_experiment/figures/osse_instance_overview_transect.png"
+    file_name = "3_observing_system_simulation_experiment/outputs/osse_instance_overview_transect.png"
     print(f"Saving transects overview to {file_name}")
     fig.savefig(
         file_name,
@@ -469,7 +469,7 @@ def make_metric_overview_gp(
     )
 
     df_overview = pd.DataFrame(overview[1:], columns=overview[0])
-    file_name = "3_observing_system_simulation_experiment/tables/osse_instance_overview_metrics.csv"
+    file_name = "3_observing_system_simulation_experiment/outputs/osse_instance_overview_metrics.csv"
     print(f"Saving metric overview to {file_name}")
     df_overview.to_csv(file_name, index=False)
 
