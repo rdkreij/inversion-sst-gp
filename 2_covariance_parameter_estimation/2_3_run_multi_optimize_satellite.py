@@ -28,6 +28,7 @@ def run_satellite(
     """
 
     # Load Himawari data
+    print(f"  Loading Himawari data for time {time_str}")
     ds = xr.open_dataset("1_preproc_data/proc_data/himawari.nc").sel(time=np.datetime64(time_str))
     lon, lat, To, dTdto = (
         ds[var].values for var in ("lon", "lat", "T", "dTdt")
@@ -84,7 +85,8 @@ def run_satellite(
             "est_params": est_params,
         }
 
-    # Run model 
+    # Run model
+    print("  Running GP optimization")
     results = run_gprm_optim(
         time_str, dTds1o, dTds2o, dTdto, X, Y, tstep, prop_sat
     )
@@ -93,7 +95,9 @@ def run_satellite(
     if save_results:
         intermediate_dir = "2_covariance_parameter_estimation/intermediate"
         os.makedirs(intermediate_dir, exist_ok=True)
-        utils.save_json(results, f"{intermediate_dir}/satellite_{id}.json")
+        file_name = f"{intermediate_dir}/satellite_{id}.json"
+        print(f"  Saving results to {file_name}")
+        utils.save_json(results, file_name)
 
     return results
 

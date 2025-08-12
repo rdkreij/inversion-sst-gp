@@ -29,7 +29,7 @@ To reproduce the results, please follow these steps:
 
 3. **Prepare the data:** Download the preprocessed NetCDF files of the SUNTANS, Himawari-9, and altimetry derived currents as stated in the [1_preproc_data/README.md](1_preproc_data/README.md).
 
-4. **Run the project sequentially:** After placing the data, cycle through the folders `1_`, `2_`, etc., running the code in each folder in order. Output data and figures will be saved in subfolders such as `proc_data/`, `intermediate/`, `outputs/`, and `figures/`. These are reused or referenced in downstream scripts and notebooks. **Note:** For convenience, the relevant output files and figures are already included in these subfolders, so you can explore the results without having to re-run every step.
+4. **Run the project sequentially:** After placing the data, cycle through the folders `1_`, `2_`, etc., running the code in each folder in order. Output data and figures will be saved in subfolders such as `proc_data/`, `intermediate/`, `outputs/`, `tables/`, and `figures/`. These are reused or referenced in downstream scripts and notebooks. **Note:** For convenience, the relevant output files and figures are already included in these subfolders, so you can explore the results without having to re-run every step.
 
 
 ## Abstract

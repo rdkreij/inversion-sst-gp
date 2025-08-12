@@ -102,6 +102,7 @@ def run_osse(
         )
         _, _, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
 
+        print("  Estimating parameters for optimum model")
         sigma_u, l_u, tau_u = gp_regression.estimate_params_process(u, X, Y, 1e-1, 4e4, 1e-3)
         sigma_v, l_v, tau_v = gp_regression.estimate_params_process(v, X, Y, 1e-1, 4e4, 1e-3)
         sigma_S, l_S, tau_S = gp_regression.estimate_params_process(S, X, Y, 3e-7, 3e4, 2e-7)
@@ -127,6 +128,7 @@ def run_osse(
         prop_osse = None  # For "gos" case
 
     # Load test dataset
+    print(f"  Loading dataset for test_type={test_type}, step={step}")
     if test_type == "noise":
         ds = xr.open_dataset("1_preproc_data/proc_data/suntans_measurement_error.nc").sel(sigma_tau=step)
     elif test_type == "time_24h":
@@ -175,15 +177,19 @@ def run_osse(
 
     # Run model
     if model_type == "gos":
+        print("  Running GOS optimization")
         results = run_gos_optim(step, dTds1o, dTds2o, dTdto, u, v)
     else:
+        print(f"  Running {model_type.upper()} optimization")
         results = run_gprm_optim(step, dTds1o, dTds2o, dTdto, u, v, X, Y, tstep, prop_osse)
 
     # Save results
     if save_results:
         intermediate_dir = "2_covariance_parameter_estimation/intermediate"
         os.makedirs(intermediate_dir, exist_ok=True)
-        utils.save_json(results, f"{intermediate_dir}/osse_{model_type}_{test_type}_{run_id}.json")
+        file_name = f"{intermediate_dir}/osse_{model_type}_{test_type}_{run_id}.json"
+        print(f"  Saving results to {file_name}")
+        utils.save_json(results, file_name)
 
     return results
 
