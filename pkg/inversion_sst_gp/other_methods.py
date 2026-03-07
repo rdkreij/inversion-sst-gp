@@ -1,8 +1,7 @@
 import numpy as np
+from inversion_sst_gp.utils import map_val
 from scipy.interpolate import griddata
 from scipy.linalg import lstsq
-
-from inversion_sst_gp.utils import map_val
 
 
 def RMSE(u0, v0, up, vp):

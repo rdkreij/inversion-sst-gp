@@ -2164,7 +2164,6 @@ def plot_psd(
         color=[0.7, 0.8, 1],
         label=r"$\pm 2$ SD",
         zorder=-1,
-        
     )
     # Plot theoretical PSD (if present)
     k_th, psd_th = psd_dict["theory"]
@@ -2175,8 +2174,7 @@ def plot_psd(
         lw=1,
         label="GP prior",
     )
-    
-    
+
     # Plot multi fields
     for key, label, color in zip(
         ["gos"],
@@ -2195,6 +2193,7 @@ def plot_psd(
 
     return ax
 
+
 def sci_factor_to_ylabel(ax):
     # Force draw so offset text is populated
     ax.figure.canvas.draw()
@@ -2205,15 +2204,15 @@ def sci_factor_to_ylabel(ax):
         return
 
     # Extract exponent safely
-    match = re.search(r'10\^\{([−-]?\d+)\}', raw)
+    match = re.search(r"10\^\{([−-]?\d+)\}", raw)
     if not match:
         return
 
-    exp = match.group(1).replace('−', '-')  # normalize minus
+    exp = match.group(1).replace("−", "-")  # normalize minus
     ylabel = ax.get_ylabel().rstrip()
 
     # Append factor safely (respect existing math)
-    new_ylabel = rf'{ylabel} $\times 10^{{{exp}}}$'
+    new_ylabel = rf"{ylabel} $\times 10^{{{exp}}}$"
     ax.set_ylabel(new_ylabel)
 
     # Disable offset text
@@ -2229,10 +2228,10 @@ def plot_time_series_point(ds_point):
     muSstar = ds_point.muSstar.values
     stdSstar = ds_point.stdSstar.values
     muustar = ds_point.muustar.values
-    stdustar = np.sqrt(ds_point.Kxstar_vel.values[:,0,0]) 
+    stdustar = np.sqrt(ds_point.Kxstar_vel.values[:, 0, 0])
     muvstar = ds_point.muvstar.values
-    stdvstar = np.sqrt(ds_point.Kxstar_vel.values[:,1,1])
-    
+    stdvstar = np.sqrt(ds_point.Kxstar_vel.values[:, 1, 1])
+
     u = ds_point.u.values
     v = ds_point.v.values
     S = ds_point.S.values
@@ -2247,16 +2246,16 @@ def plot_time_series_point(ds_point):
     Ny = 5
 
     aspect = 4
-    lx = me + mw + Nx 
+    lx = me + mw + Nx
     ly = mn + ms + Ny / aspect
 
     paspect = lx / ly
 
-    ph = 1/aspect / ly
+    ph = 1 / aspect / ly
     pw = 1 / lx
 
     px_range = (mw + np.arange(Nx)) / lx
-    py_range = (ly - mn - 1/aspect - np.arange(Ny) / aspect) / ly
+    py_range = (ly - mn - 1 / aspect - np.arange(Ny) / aspect) / ly
 
     fw = 8
     fh = fw / paspect
@@ -2270,75 +2269,109 @@ def plot_time_series_point(ds_point):
     ax0.set_ylim((0, 1))
 
     time_date = ds_point.time.values
-    time = (time_date-time_date[0]).astype('timedelta64[h]').astype(float)
+    time = (time_date - time_date[0]).astype("timedelta64[h]").astype(float)
     time_lims = (time.min(), time.max())
 
     for i in range(Nx):
         for jj in range(Ny):
-            ax[jj,i] = fig.add_axes((px_range[i], py_range[jj], pw, ph))  
-            ax[jj,i].set_xlim(time_lims)
+            ax[jj, i] = fig.add_axes((px_range[i], py_range[jj], pw, ph))
+            ax[jj, i].set_xlim(time_lims)
 
     # Plotting
-    ax[0,0].plot(time, To,'r-',lw=1, label=r'True $\mathbf{T}_t$')
-    ax[0,0].set_ylabel(r"$T_t$ ($^\circ$C)")
-    ax[0,0].legend(loc='lower right', fontsize=8)
+    ax[0, 0].plot(time, To, "r-", lw=1, label=r"True $\mathbf{T}_t$")
+    ax[0, 0].set_ylabel(r"$T_t$ ($^\circ$C)")
+    ax[0, 0].legend(loc="lower right", fontsize=8)
 
-    ax[1,0].plot(time, dTds1o,'r-.',lw=1, label=r'True $\partial \mathbf{T}_t/\partial s_1$')
-    ax[1,0].plot(time, dTds2o,'r--',lw=1, label=r'True $\partial \mathbf{T}_t/\partial s_2$')
-    ax[1,0].set_ylabel(r"$\nabla T_t$ (K$\,$m$^{-1}$)")
-    ax[1,0].legend(loc='lower right', fontsize=8)
+    ax[1, 0].plot(
+        time, dTds1o, "r-.", lw=1, label=r"True $\partial \mathbf{T}_t/\partial s_1$"
+    )
+    ax[1, 0].plot(
+        time, dTds2o, "r--", lw=1, label=r"True $\partial \mathbf{T}_t/\partial s_2$"
+    )
+    ax[1, 0].set_ylabel(r"$\nabla T_t$ (K$\,$m$^{-1}$)")
+    ax[1, 0].legend(loc="lower right", fontsize=8)
 
-    ax[2,0].plot(time, dTdto,'k:',lw=1.5, label=r'True $\partial \mathbf{T}_t/\partial t$')
-    ax[2,0].plot(time, S,'r-',lw=1, label=r'True $\mathbf{S}_t$')
-    ax[2,0].plot(time, muSstar,'k-',lw=1,label=r'GP $\boldsymbol{\mu}_{S,t}^*$')
-    ax[2,0].fill_between(time, muSstar - stdSstar, muSstar + stdSstar, color=[.6]*3, label=r"GP 1 SD")
-    ax[2,0].fill_between(time, muSstar - 2*stdSstar, muSstar + 2*stdSstar, color=[.8]*3, label=r"GP 2 SD", zorder=0)
-    ax[2,0].set_ylabel(r"$S_t$ (K$\,$s$^{-1}$)")
-    ax[2,0].legend(loc='best', fontsize=8)
+    ax[2, 0].plot(
+        time, dTdto, "k:", lw=1.5, label=r"True $\partial \mathbf{T}_t/\partial t$"
+    )
+    ax[2, 0].plot(time, S, "r-", lw=1, label=r"True $\mathbf{S}_t$")
+    ax[2, 0].plot(time, muSstar, "k-", lw=1, label=r"GP $\boldsymbol{\mu}_{S,t}^*$")
+    ax[2, 0].fill_between(
+        time, muSstar - stdSstar, muSstar + stdSstar, color=[0.6] * 3, label=r"GP 1 SD"
+    )
+    ax[2, 0].fill_between(
+        time,
+        muSstar - 2 * stdSstar,
+        muSstar + 2 * stdSstar,
+        color=[0.8] * 3,
+        label=r"GP 2 SD",
+        zorder=0,
+    )
+    ax[2, 0].set_ylabel(r"$S_t$ (K$\,$s$^{-1}$)")
+    ax[2, 0].legend(loc="best", fontsize=8)
 
-    ax[3,0].plot(time, u,'r-',lw=1, label=r'True $\mathbf{u}_t$')
-    ax[3,0].plot(time, muustar,'k-',lw=1, label=r'GP $\boldsymbol{\mu}_{u,t}^*$')
-    ax[3,0].fill_between(time, muustar - stdustar, muustar + stdustar, color=[.6]*3, label=r"GP 1 SD")
-    ax[3,0].fill_between(time, muustar - 2*stdustar, muustar + 2*stdustar, color=[.8]*3, label=r"GP 2 SD", zorder=0)
-    ax[3,0].set_ylabel(r"$u_t$ (m$\,$s$^{-1}$)")
-    ax[3,0].legend(loc='upper right', fontsize=8, ncol=2)
+    ax[3, 0].plot(time, u, "r-", lw=1, label=r"True $\mathbf{u}_t$")
+    ax[3, 0].plot(time, muustar, "k-", lw=1, label=r"GP $\boldsymbol{\mu}_{u,t}^*$")
+    ax[3, 0].fill_between(
+        time, muustar - stdustar, muustar + stdustar, color=[0.6] * 3, label=r"GP 1 SD"
+    )
+    ax[3, 0].fill_between(
+        time,
+        muustar - 2 * stdustar,
+        muustar + 2 * stdustar,
+        color=[0.8] * 3,
+        label=r"GP 2 SD",
+        zorder=0,
+    )
+    ax[3, 0].set_ylabel(r"$u_t$ (m$\,$s$^{-1}$)")
+    ax[3, 0].legend(loc="upper right", fontsize=8, ncol=2)
 
-    ax[4,0].plot(time, v,'r-',lw=1, label=r'True $\mathbf{v}_t$')
-    ax[4,0].plot(time, muvstar,'k-',lw=1, label=r'GP $\boldsymbol{\mu}_{v,t}^*$')
-    ax[4,0].fill_between(time, muvstar - stdvstar, muvstar + stdvstar, color=[.6]*3, label=r"GP 1 SD")
-    ax[4,0].fill_between(time, muvstar - 2*stdvstar, muvstar + 2*stdvstar, color=[.8]*3, label=r"GP 2 SD", zorder=0)
-    ax[4,0].set_ylabel(r"$v_t$ (m$\,$s$^{-1}$)")
-    ax[4,0].legend(loc='upper right', fontsize=8, ncol=2)
+    ax[4, 0].plot(time, v, "r-", lw=1, label=r"True $\mathbf{v}_t$")
+    ax[4, 0].plot(time, muvstar, "k-", lw=1, label=r"GP $\boldsymbol{\mu}_{v,t}^*$")
+    ax[4, 0].fill_between(
+        time, muvstar - stdvstar, muvstar + stdvstar, color=[0.6] * 3, label=r"GP 1 SD"
+    )
+    ax[4, 0].fill_between(
+        time,
+        muvstar - 2 * stdvstar,
+        muvstar + 2 * stdvstar,
+        color=[0.8] * 3,
+        label=r"GP 2 SD",
+        zorder=0,
+    )
+    ax[4, 0].set_ylabel(r"$v_t$ (m$\,$s$^{-1}$)")
+    ax[4, 0].legend(loc="upper right", fontsize=8, ncol=2)
 
     # Set u and v same ylim width
-    ylims_u = ax[3,0].get_ylim()
+    ylims_u = ax[3, 0].get_ylim()
     width_u = ylims_u[1] - ylims_u[0]
-    ylims_v = ax[4,0].get_ylim()
+    ylims_v = ax[4, 0].get_ylim()
     width_v = ylims_v[1] - ylims_v[0]
     max_width = max(width_u, width_v)
     center_u = (ylims_u[0] + ylims_u[1]) / 2
     center_v = (ylims_v[0] + ylims_v[1]) / 2
-    ax[3,0].set_ylim(center_u - max_width/2, center_u + max_width/2)
-    ax[4,0].set_ylim(center_v - max_width/2, center_v + max_width/2)
-            
+    ax[3, 0].set_ylim(center_u - max_width / 2, center_u + max_width / 2)
+    ax[4, 0].set_ylim(center_v - max_width / 2, center_v + max_width / 2)
+
     # Labeling and aesthetics
-    ax[Ny-1,0].set_xlabel("$t$ (h)")
+    ax[Ny - 1, 0].set_xlabel("$t$ (h)")
     for i in range(Nx):
         for jj in range(Ny):
-            annotate_corner(ax[jj,i],chr(97+jj))
-            
-            ax[jj,i].xaxis.set_ticks_position('both')
-            ax[jj,i].yaxis.set_ticks_position('both')
-            ax[jj,i].tick_params(axis='both', direction='in', length=5)
-            
-            sci_factor_to_ylabel(ax[jj,i])
-            
-            if jj != Ny-1:
-                ax[jj,i].set_xticklabels([])
+            annotate_corner(ax[jj, i], chr(97 + jj))
 
-    ax0.axis('off')
-        
+            ax[jj, i].xaxis.set_ticks_position("both")
+            ax[jj, i].yaxis.set_ticks_position("both")
+            ax[jj, i].tick_params(axis="both", direction="in", length=5)
+
+            sci_factor_to_ylabel(ax[jj, i])
+
+            if jj != Ny - 1:
+                ax[jj, i].set_xticklabels([])
+
+    ax0.axis("off")
+
     return fig, ax
+
 
 def plot_spatial_time_series(
     LON,
@@ -2481,13 +2514,9 @@ def plot_spatial_time_series(
         label=r"m\:s$^{-1}$",
     )
 
-    imshow(
-        ax[0, 1], LON, LAT, u_var, cmap=cmapvar, vmin=plimvar[0], vmax=plimvar[1]
-    )
+    imshow(ax[0, 1], LON, LAT, u_var, cmap=cmapvar, vmin=plimvar[0], vmax=plimvar[1])
 
-    imshow(
-        ax[0, 2], LON, LAT, v_var, cmap=cmapvar, vmin=plimvar[0], vmax=plimvar[1]
-    )
+    imshow(ax[0, 2], LON, LAT, v_var, cmap=cmapvar, vmin=plimvar[0], vmax=plimvar[1])
 
     imshow(
         ax[1, 0],
@@ -2612,13 +2641,15 @@ def plot_spatial_time_series(
     ax0.axis("off")
     return fig, ax
 
+
 def plot_single_psd(ax, psd_dict, key, label, color, kmin, kmax):
     k, psd = psd_dict[key]
     mask = (k >= kmin) & (k <= kmax)
     ax.plot(k[mask], psd[mask], label=label, color=color, lw=1)
     pass
 
-def plot_psd_overview(ax, psd_dict, kmin, kmax, parameter):        
+
+def plot_psd_overview(ax, psd_dict, kmin, kmax, parameter):
     plot_single_psd(ax, psd_dict, "model", "Truth", "red", kmin, kmax)
 
     # Plot sample statistics
@@ -2652,16 +2683,23 @@ def plot_psd_overview(ax, psd_dict, kmin, kmax, parameter):
             sd_2upper[mask],
             color=[0.8, 0.8, 0.8],
             label=r"$\pm 2$ SD",
-            zorder=-1,   
+            zorder=-1,
         )
 
     plot_samples_psd(ax, psd_dict, kmin, kmax)
 
     k_theory, psd_theory = psd_dict["theory"]
-    ax.plot(k_theory, psd_theory, '-', color="blue", lw=1, label=r"GP cov fun")
+    ax.plot(k_theory, psd_theory, "-", color="blue", lw=1, label=r"GP cov fun")
 
     k_theory_no_noise, psd_theory_no_noise = psd_dict["theory_no_noise"]
-    ax.plot(k_theory_no_noise, psd_theory_no_noise, '--', color="blue", lw=1, label=rf"GP cov fun ($\gamma^2_{{{parameter},t}}=0$)")[0].set_dashes([5, 5])
+    ax.plot(
+        k_theory_no_noise,
+        psd_theory_no_noise,
+        "--",
+        color="blue",
+        lw=1,
+        label=rf"GP cov fun ($\gamma^2_{{{parameter},t}}=0$)",
+    )[0].set_dashes([5, 5])
 
     plot_single_psd(ax, psd_dict, "gos", "GOS", "green", kmin, kmax)
 
@@ -2671,7 +2709,7 @@ def plot_psd_overview(ax, psd_dict, kmin, kmax, parameter):
     ax.set_yscale("log")
 
     ax.set_xlabel(r"$k$ (m$^{-1}$)")
-        
+
     ax.xaxis.set_ticks_position("both")
     ax.yaxis.set_ticks_position("both")
     ax.tick_params(axis="both", which="major", direction="in", length=5)

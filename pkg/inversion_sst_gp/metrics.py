@@ -1,5 +1,5 @@
-from scipy.stats import norm
 import numpy as np
+from scipy.stats import norm
 
 # functions to compute various scoring metrics for model evaluation
 

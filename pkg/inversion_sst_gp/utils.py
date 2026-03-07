@@ -1,5 +1,6 @@
-import numpy as np
 import json
+
+import numpy as np
 import pandas as pd
 from geographiclib.geodesic import Geodesic
 
@@ -220,8 +221,10 @@ def calculate_exponential_line(k_0, f_0, k_1, slope):
     f_points = [f_0, f_1]
     return (k_points, f_points)
 
+
 def coriolis_parameter(lat):
     return 2 * 7.2921e-5 * np.sin(np.radians(lat))
+
 
 def calculate_geostrophic_velocity_fields(X, Y, LAT, eta):
     g = 9.81  # Gravitational acceleration
@@ -231,4 +234,6 @@ def calculate_geostrophic_velocity_fields(X, Y, LAT, eta):
     f = coriolis_parameter(LAT)
     ug = -g / f * detady
     vg = g / f * detadx
+    return ug, vg
+    return ug, vg
     return ug, vg
