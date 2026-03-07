@@ -1,5 +1,6 @@
-import xarray as xr
 import os
+
+import xarray as xr
 
 # Configuration
 LON_LIMITS = (114.9, 118.1)
@@ -43,8 +44,8 @@ def process_altimetry_data(altimetry_dir, lon_limits, lat_limits):
     return ds_geo
 
 
-# Main execution
-if __name__ == "__main__":
+# Main processing function
+def main():
     print("--- Starting preprocessing altimetry data ---")
 
     # Ensure the processed data directory exists
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     processed_altimetry_ds = process_altimetry_data(
         ALTIMETRY_DATA_DIR, LON_LIMITS, LAT_LIMITS
     )
-    
+
     # Create process directory if it doesn't exist
     os.makedirs(PROCESSED_DIR, exist_ok=True)
 
@@ -64,4 +65,8 @@ if __name__ == "__main__":
     print(f"Saving processed altimetry data to {output_file_path}")
     processed_altimetry_ds.to_netcdf(output_file_path)
 
-    print("Data processing complete")
+    print("\nData processing complete")
+
+
+if __name__ == "__main__":
+    main()

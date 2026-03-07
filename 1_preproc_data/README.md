@@ -2,7 +2,9 @@
 
 ---
 #### SUNTANS surface currents and surface temperature
-1. Visit [https://doi.org/10.26182/7vmz-yz14](https://doi.org/10.26182/7vmz-yz14)
+1. Visit [https://doi.org/10.5281/zenodo.18884342
+](https://doi.org/10.5281/zenodo.18884342
+)
 2. Download the NetCDF file `suntans_surface_prop_north_australian_basin.nc`
 3. Place the dowloaded NetCDF file in `./non_proc_data/suntans`
 6. Process the file by running `./1_1_preproc_suntans_data.py` this creates `./proc_data/suntans_1h.nc`, `./proc_data/suntans_24h.nc`, `./proc_data/suntans_dense_cloud.nc`, `./proc_data/suntans_measurement_error.nc`, and `./proc_data/suntans_sparse_cloud.nc`

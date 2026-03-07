@@ -1,9 +1,10 @@
 import os
+
 import numpy as np
 import xarray as xr
-
 from inversion_sst_gp import gp_regression, utils
 
+# Helper function
 def run_satellite(
     time_str: str,
     id: str,
@@ -101,6 +102,7 @@ def run_satellite(
 
     return results
 
+# Main processing function
 def main():
     print("--- Starting multi optimize hyperparameter satellite ---")
     

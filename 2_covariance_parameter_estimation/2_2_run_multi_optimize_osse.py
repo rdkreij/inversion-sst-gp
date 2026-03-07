@@ -1,8 +1,11 @@
 import os
+
 import numpy as np
 import xarray as xr
 from inversion_sst_gp import gp_regression, metrics, other_methods, utils
 
+
+# Helper function
 def run_osse(
     step: float | int,
     model_type: str,
@@ -95,7 +98,9 @@ def run_osse(
         }
 
     elif model_type == "optimum":
-        ds_base = xr.open_dataset("1_preproc_data/proc_data/suntans_1h.nc").sel(time=time_base)
+        ds_base = xr.open_dataset("1_preproc_data/proc_data/suntans_1h.nc").sel(
+            time=time_base
+        )
 
         lon, lat, _, _, u, v, S = (
             ds_base[var].values for var in ("lon", "lat", "T", "dTdt", "u", "v", "S")
@@ -103,14 +108,26 @@ def run_osse(
         _, _, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
 
         print("Estimating parameters for optimum model")
-        sigma_u, l_u, tau_u = gp_regression.estimate_params_process(u, X, Y, 1e-1, 4e4, 1e-3)
-        sigma_v, l_v, tau_v = gp_regression.estimate_params_process(v, X, Y, 1e-1, 4e4, 1e-3)
-        sigma_S, l_S, tau_S = gp_regression.estimate_params_process(S, X, Y, 3e-7, 3e4, 2e-7)
+        sigma_u, l_u, tau_u = gp_regression.estimate_params_process(
+            u, X, Y, 1e-1, 4e4, 1e-3
+        )
+        sigma_v, l_v, tau_v = gp_regression.estimate_params_process(
+            v, X, Y, 1e-1, 4e4, 1e-3
+        )
+        sigma_S, l_S, tau_S = gp_regression.estimate_params_process(
+            S, X, Y, 3e-7, 3e4, 2e-7
+        )
 
         theta = {
-            "sigma_u": sigma_u, "l_u": l_u, "tau_u": tau_u,
-            "sigma_v": sigma_v, "l_v": l_v, "tau_v": tau_v,
-            "sigma_S": sigma_S, "l_S": l_S, "tau_S": tau_S,
+            "sigma_u": sigma_u,
+            "l_u": l_u,
+            "tau_u": tau_u,
+            "sigma_v": sigma_v,
+            "l_v": l_v,
+            "tau_v": tau_v,
+            "sigma_S": sigma_S,
+            "l_S": l_S,
+            "tau_S": tau_S,
         }
 
         prop_osse = {
@@ -130,7 +147,9 @@ def run_osse(
     # Load test dataset
     print(f"Loading dataset for test_type={test_type}, step={step}")
     if test_type == "noise":
-        ds = xr.open_dataset("1_preproc_data/proc_data/suntans_measurement_error.nc").sel(sigma_tau=step)
+        ds = xr.open_dataset(
+            "1_preproc_data/proc_data/suntans_measurement_error.nc"
+        ).sel(sigma_tau=step)
     elif test_type == "time_24h":
         ds = xr.open_dataset("1_preproc_data/proc_data/suntans_24h.nc").sel(
             time=time_base + np.timedelta64(int(step), "s")
@@ -140,9 +159,13 @@ def run_osse(
             time=time_base + np.timedelta64(int(step), "s")
         )
     elif test_type == "cloud_sparse":
-        ds = xr.open_dataset("1_preproc_data/proc_data/suntans_sparse_cloud.nc").sel(coverage_sparse=step)
+        ds = xr.open_dataset("1_preproc_data/proc_data/suntans_sparse_cloud.nc").sel(
+            coverage_sparse=step
+        )
     elif test_type == "cloud_dense":
-        ds = xr.open_dataset("1_preproc_data/proc_data/suntans_dense_cloud.nc").sel(coverage_dense=step)
+        ds = xr.open_dataset("1_preproc_data/proc_data/suntans_dense_cloud.nc").sel(
+            coverage_dense=step
+        )
     else:
         raise ValueError(f"Unknown test_type: {test_type}")
 
@@ -181,7 +204,9 @@ def run_osse(
         results = run_gos_optim(step, dTds1o, dTds2o, dTdto, u, v)
     else:
         print(f"Running {model_type.upper()} optimization")
-        results = run_gprm_optim(step, dTds1o, dTds2o, dTdto, u, v, X, Y, tstep, prop_osse)
+        results = run_gprm_optim(
+            step, dTds1o, dTds2o, dTdto, u, v, X, Y, tstep, prop_osse
+        )
 
     # Save results
     if save_results:
@@ -193,25 +218,11 @@ def run_osse(
 
     return results
 
+
+# Main processing function
 def main():
     print("--- Starting multi optimize hyperparameter OSSE ---")
-    
-    # Mapping from test_type → steps list and models list
-    # step_map = {
-    #     "time_24h": list(range(0, 8640001, 86400)),
-    #     "time_1h": list(range(0, 172801, 3600)),
-    #     "noise": np.arange(0, 0.016, 0.001).tolist(),
-    #     "cloud_sparse": np.arange(0, 0.76, 0.03).tolist(),
-    #     "cloud_dense": np.arange(0, 0.76, 0.03).tolist(),
-    # }
-
-    # model_map = {
-    #     "time_24h": ["gos", "gprm_e", "gprm", "optimum"],
-    #     "time_1h": ["gos", "gprm_e", "gprm", "optimum"],
-    #     "noise": ["gos", "gprm_e", "gprm"],
-    #     "cloud_sparse": ["gprm_e", "gprm"],
-    #     "cloud_dense": ["gprm_e", "gprm"],
-    # }
+    # Define steps and model types for each test type
     step_map = {
         "time_24h": list(range(0, 8640001, 86400)),
         "time_1h": list(range(0, 172801, 3600)),
@@ -219,7 +230,6 @@ def main():
         "cloud_sparse": np.arange(0, 0.76, 0.03).tolist(),
         "cloud_dense": np.arange(0, 0.76, 0.03).tolist(),
     }
-
     model_map = {
         "time_24h": ["gos", "gprm_e", "gprm", "optimum"],
         "time_1h": ["gos", "gprm_e", "gprm", "optimum"],
@@ -239,13 +249,18 @@ def main():
     # Run OSSE for each combination
     for task_id in range(len(combinations)):
         step, model_type, test_type, step_index = combinations[task_id]
-        # if step_index != 100:
-        #     print(f"Skipping task {task_id + 1}/{len(combinations)} with: index={step_index}, step={step}, model_type={model_type}, test_type={test_type}")
-        #     continue  # Skip all except the one with step_index=100 for now
-        print(f"\nRunning task {task_id + 1}/{len(combinations)} with: index={step_index}, step={step}, model_type={model_type}, test_type={test_type}")
-        run_osse(step=step, model_type=model_type, test_type=test_type, run_id=str(step_index))
-        
-    print("\nAll tasks completed.")
+        print(
+            f"\nRunning task {task_id + 1}/{len(combinations)} with: index={step_index}, step={step}, model_type={model_type}, test_type={test_type}"
+        )
+        run_osse(
+            step=step,
+            model_type=model_type,
+            test_type=test_type,
+            run_id=str(step_index),
+        )
+
+    print("\nAll tasks completed")
+
 
 if __name__ == "__main__":
     main()

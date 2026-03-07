@@ -1,19 +1,14 @@
-import xarray as xr
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
+from inversion_sst_gp import gp_regression, particle_tracking, plot_helper, utils
 from matplotlib import rc
-
-from inversion_sst_gp import (
-    plot_helper,
-    utils,
-    gp_regression,
-    particle_tracking,
-)
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
 rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
+
 
 def main():
     print("--- Starting case 2: particle tracking ---")
@@ -33,9 +28,9 @@ def main():
 
     print("Loading altimetry current data")
     time_altimetry_str = "2023-12-18T00:00:00"
-    ds_altimetry = xr.open_dataset("1_preproc_data/proc_data/altimeter_currents.nc").sel(
-        time=time_altimetry_str
-    )
+    ds_altimetry = xr.open_dataset(
+        "1_preproc_data/proc_data/altimeter_currents.nc"
+    ).sel(time=time_altimetry_str)
     lonr, latr, ugos, vgos = (
         ds_altimetry[var].values for var in ("lon", "lat", "ugos", "vgos")
     )
@@ -51,7 +46,14 @@ def main():
     print("Calculating GP regression prediction")
     muustar, muvstar, muSstar, stdustar, stdvstar, stdSstar, Kxstar_vel, Kxstar = (
         gp_regression.calculate_prediction_gpregression(
-            dTds1o, dTds2o, dTdto, params_fully_obs_gp, X, Y, time_step, return_Kxstar=True
+            dTds1o,
+            dTds2o,
+            dTdto,
+            params_fully_obs_gp,
+            X,
+            Y,
+            time_step,
+            return_Kxstar=True,
         )
     )
 
@@ -156,8 +158,9 @@ def main():
         bbox_inches="tight",
         dpi=300,
     )
-    
-    print('Finished processing and saving figures')
+
+    print("\nFinished processing and saving figures")
+
 
 if __name__ == "__main__":
     main()

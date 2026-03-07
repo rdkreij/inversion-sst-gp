@@ -1,19 +1,18 @@
-import xarray as xr
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import rc
-import matplotlib.pyplot as plt
-from matplotlib.ticker import LogLocator, FuncFormatter
-
+import xarray as xr
 from inversion_sst_gp import (
-    plot_helper,
-    utils,
-    other_methods,
-    metrics,
     gp_regression,
-    spectral_analysis,
+    metrics,
+    other_methods,
+    plot_helper,
     simulate_from_gp,
+    spectral_analysis,
+    utils,
 )
+from matplotlib import rc
+from matplotlib.ticker import FuncFormatter, LogLocator
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
@@ -21,8 +20,8 @@ rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
 
 # Plotting parameters
-lonlims = (115, 118)
-latlims = (-15.5, -12.5)
+LON_LIMITS = (115, 118)
+LAT_LIMITS = (-15.5, -12.5)
 
 
 # Helper functions
@@ -39,7 +38,7 @@ def load_and_prepare_dataset(path, selection_key=None, selection_val=None):
     lonc, latc, X, Y, LON, LAT = utils.calculate_grid_properties(lon, lat)
     dTds1o, dTds2o = utils.finite_difference_2d(X, Y, To)
     plot_helper.visualize_data(
-        LON, LAT, To, dTdto, dTds1o, dTds2o, lonlims=lonlims, latlims=latlims
+        LON, LAT, To, dTdto, dTds1o, dTds2o, lonlims=LON_LIMITS, latlims=LAT_LIMITS
     )
     print("Dataset loaded and preprocessed")
     return {
@@ -396,8 +395,8 @@ def plot_and_save_predictions(
     stdSstar,
     muustar,
     muvstar,
-    lonlims,
-    latlims,
+    LON_LIMITS,
+    LAT_LIMITS,
     u=None,
     v=None,
     S=None,
@@ -419,8 +418,8 @@ def plot_and_save_predictions(
         stdSstar,
         muustar,
         muvstar,
-        lonlims,
-        latlims,
+        LON_LIMITS,
+        LAT_LIMITS,
         u=u,
         v=v,
         S=S,
@@ -467,7 +466,7 @@ def experiment_fully_observed():
     params_obs = utils.extract_params(
         params_path_obs, param_key, param_val, type=param_type
     )
-    
+
     print("Compute predictions with GP obs-parameters")
     (
         muustar,
@@ -497,7 +496,7 @@ def experiment_fully_observed():
     params_num = utils.extract_params(
         params_path_num, param_key, param_val, type=param_type
     )
-        print("Compute predictions with GP num-parameters")
+    print("Compute predictions with GP num-parameters")
     (
         muustar_num,
         muvstar_num,
@@ -520,7 +519,7 @@ def experiment_fully_observed():
         data["v"],
     )
 
-    print(f"\nCompute predictions with GOS")
+    print("\nCompute predictions with GOS")
     ugos, vgos, Sgos, metrics_gos = run_global_optimal_solution(
         data["dTds1o"],
         data["dTds2o"],
@@ -532,7 +531,7 @@ def experiment_fully_observed():
         data["u"],
         data["v"],
     )
-    
+
     print("\nPlot and save predictions")
     plot_and_save_predictions(
         data["LON"],
@@ -546,8 +545,8 @@ def experiment_fully_observed():
         stdSstar,
         muustar,
         muvstar,
-        lonlims,
-        latlims,
+        LON_LIMITS,
+        LAT_LIMITS,
         u=data["u"],
         v=data["v"],
         S=data["S"],
@@ -569,14 +568,16 @@ def experiment_fully_observed():
     log_bins = False
     nbins = 60
     n_samples = 100
-    print(f"PSD config: parameter={parameter}, spacing={spacing}, hann={hann}, log_bins={log_bins}, nbins={nbins}, n_samples={n_samples}")
+    print(
+        f"PSD config: parameter={parameter}, spacing={spacing}, hann={hann}, log_bins={log_bins}, nbins={nbins}, n_samples={n_samples}"
+    )
 
     # Choose the corresponding GOS data for the parameter of interest
     data_gos = vgos if parameter == "v" else ugos if parameter == "u" else Sgos
 
     print(
-            "Simulating velocity samples from GP posterior with both obs-parameters and num-parameters"
-        )
+        "Simulating velocity samples from GP posterior with both obs-parameters and num-parameters"
+    )
 
     # Simulate samples for both sets of parameters
     print("Simulating samples with GP num-parameters")
@@ -692,8 +693,8 @@ def experiment_measurement_error(noise=0.005):
         stdSstar,
         muustar,
         muvstar,
-        lonlims,
-        latlims,
+        LON_LIMITS,
+        LAT_LIMITS,
         u=data["u"],
         v=data["v"],
         S=data["S"],
@@ -756,8 +757,8 @@ def experiment_dense_cloud(coverage_dense=0.3):
         stdSstar,
         muustar,
         muvstar,
-        lonlims,
-        latlims,
+        LON_LIMITS,
+        LAT_LIMITS,
         u=data["u"],
         v=data["v"],
         S=data["S"],
@@ -820,8 +821,8 @@ def experiment_sparse_cloud(coverage_sparse=0.3):
         stdSstar,
         muustar,
         muvstar,
-        lonlims,
-        latlims,
+        LON_LIMITS,
+        LAT_LIMITS,
         u=data["u"],
         v=data["v"],
         S=data["S"],
@@ -845,7 +846,7 @@ def plot_and_save_transects(
         transect_measurement_error,
         transect_dense_cloud,
         transect_sparse_cloud,
-        lonlims,
+        LON_LIMITS,
         [-0.35, 0.25],
         return_fig=True,
     )
@@ -910,6 +911,7 @@ def make_metric_overview_gp(
     df_overview.to_csv(file_name, index=False)
 
 
+# Main processing function
 def main():
     print("--- Running individual cases for OSSE ---")
     transect_fully_observed, metrics_gp_fully_observed, metrics_gos_fully_observed = (

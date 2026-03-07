@@ -1,13 +1,13 @@
-import xarray as xr
 import numpy as np
-from matplotlib import rc
+import xarray as xr
 from inversion_sst_gp import (
-    utils,
-    other_methods,
-    metrics,
     gp_regression,
+    metrics,
+    other_methods,
     simulate_from_gp,
+    utils,
 )
+from matplotlib import rc
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
@@ -15,8 +15,8 @@ rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
 
 # Plotting parameters
-lonlims = (115, 118)
-latlims = (-15.5, -12.5)
+LON_LIMITS = (115, 118)
+LAT_LIMITS = (-15.5, -12.5)
 
 
 # Helper functions
@@ -197,8 +197,8 @@ def compute_time_series(time_step_label, add_samples):
                 "time": (("time",), [time]),
             },
             attrs={
-                "lonlims": lonlims,
-                "latlims": latlims,
+                "lonlims": LON_LIMITS,
+                "latlims": LAT_LIMITS,
             },
         )
 
@@ -226,8 +226,13 @@ def compute_time_series(time_step_label, add_samples):
     pass
 
 
-if __name__ == "__main__":
+# Main processing function
+def main():
     print("--- computing time series for OSSE evaluation metrics ---")
     compute_time_series("1h", add_samples=True)
     compute_time_series("24h", add_samples=False)
-    print("--- Time series computation completed ---")
+    print("\nTime series computation completed")
+
+
+if __name__ == "__main__":
+    main()

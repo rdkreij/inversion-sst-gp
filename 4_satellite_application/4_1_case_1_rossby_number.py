@@ -1,18 +1,14 @@
-import xarray as xr
 import numpy as np
+import xarray as xr
+from inversion_sst_gp import gp_regression, plot_helper, utils
 from matplotlib import rc
-
-from inversion_sst_gp import (
-    plot_helper,
-    utils,
-    gp_regression,
-)
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
 rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
 
+# Main processing function
 def main():
     print("--- Starting case 1: Rossby number ---")
     lonlims = (115, 118)
@@ -30,9 +26,9 @@ def main():
 
     print("Loading altimetry current data")
     time_altimetry_str = "2023-09-22T00:00:00"
-    ds_altimetry = xr.open_dataset("1_preproc_data/proc_data/altimeter_currents.nc").sel(
-        time=time_altimetry_str
-    )
+    ds_altimetry = xr.open_dataset(
+        "1_preproc_data/proc_data/altimeter_currents.nc"
+    ).sel(time=time_altimetry_str)
     lonr, latr, ugos, vgos = (
         ds_altimetry[var].values for var in ("lon", "lat", "ugos", "vgos")
     )
@@ -78,7 +74,7 @@ def main():
         nyr=16,
         return_fig=True,
     )
-    
+
     file_name = "4_satellite_application/outputs/satellite_case_1_prediction.png"
     print(f"Saving figure to {file_name}")
     fig.savefig(
@@ -86,7 +82,7 @@ def main():
         bbox_inches="tight",
         dpi=300,
     )
-    
+
     print("Calculating dynamic Rossby number")
     Ro = utils.calculate_dynamic_rossby_number(X, Y, muustar, muvstar, LAT)
     Ror = utils.calculate_dynamic_rossby_number(Xr, Yr, ugos, vgos, LATr)
@@ -104,7 +100,7 @@ def main():
         Ror=Ror,
         return_fig=True,
     )
-    
+
     file_name = "4_satellite_application/outputs/satellite_case_1_rossby_number.png"
     print(f"Saving Rossby number figure to {file_name}")
     fig.savefig(
@@ -112,8 +108,9 @@ def main():
         bbox_inches="tight",
         dpi=300,
     )
-    
-    print('Finished processing and saving figures')
+
+    print("\nFinished processing and saving figures")
+
 
 if __name__ == "__main__":
     main()

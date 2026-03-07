@@ -1,19 +1,21 @@
-import xarray as xr
-import numpy as np
-import imageio.v2 as imageio
 from pathlib import Path
+
+import imageio.v2 as imageio
 import matplotlib
+import numpy as np
+import xarray as xr
+
 matplotlib.use("Agg")  # Prevent Tkinter backend
 
-from matplotlib import rc
 import matplotlib.pyplot as plt
-
 from inversion_sst_gp import plot_helper
+from matplotlib import rc
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
 rc("text", usetex=True)
 rc("text.latex", preamble=r"\usepackage{amsmath}")
+
 
 # Helper functions
 def plot_instance_of_series(
@@ -84,7 +86,7 @@ def plot_instance_of_series(
         ha="center",
         va="center",
         fontsize=10,
-        multialignment='left',
+        multialignment="left",
     )
 
     fig.savefig(
@@ -96,23 +98,24 @@ def plot_instance_of_series(
     pass
 
 
-def images_to_video(time_step_label,fps=2):
+def images_to_video(time_step_label, fps=2):
     png_dir = Path("3_observing_system_simulation_experiment/intermediate")
     output = f"3_observing_system_simulation_experiment/outputs/osse_time_step_{time_step_label}.mp4"
 
     frames = png_dir.glob(f"osse_time_{time_step_label}_*.png")
-    
+
     # Get idx from filename and sort by idx
     frames = sorted(frames, key=lambda x: int(x.stem.split("_")[-1]))
-    
+
     print(f"Found {len(frames)} frames for video creation")
     with imageio.get_writer(output, fps=fps) as writer:
         for frame in frames:
             writer.append_data(imageio.imread(frame))
     print(f"Video saved to {output}")
-            
 
-if __name__ == "__main__":
+
+# Main processing function
+def main():
     print("--- Running time series to video script ---")
     time_step_label = "24h"
 
@@ -138,9 +141,12 @@ if __name__ == "__main__":
             ds_all, time, idx, time_step_label, base_time, **plot_config
         )
     print("Finished plotting time series\n")
-        
+
     print("Creating video from images")
     images_to_video(time_step_label)
-    print("Finished creating video")
-    
-    print("--- Finished time series to video script ---")
+
+    print("\nFinished time series to video script")
+
+
+if __name__ == "__main__":
+    main()

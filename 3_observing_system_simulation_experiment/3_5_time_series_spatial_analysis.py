@@ -1,9 +1,8 @@
-import xarray as xr
-from matplotlib import rc
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
+import xarray as xr
 from inversion_sst_gp import plot_helper, utils
+from matplotlib import rc
 
 # Matplotlib configuration
 rc("font", family="serif", serif=["Computer Modern"])
@@ -94,7 +93,13 @@ def load_and_plot_spatial_time_series(time_step_label):
     plt.close(fig)
     pass
 
-if __name__ == "__main__":
+
+# Main processing function
+def main():
     print("--- Generating time series spatial overview figure for OSSE ---")
     load_and_plot_spatial_time_series("1h")
-    print("--- Time series spatial overview figure for OSSE generated ---")
+    print("\nTime series spatial overview figure for OSSE generated")
+
+
+if __name__ == "__main__":
+    main()

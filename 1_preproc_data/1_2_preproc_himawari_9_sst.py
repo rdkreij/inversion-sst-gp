@@ -1,8 +1,8 @@
-import xarray as xr
-import pandas as pd
-import numpy as np
 import os
 
+import numpy as np
+import pandas as pd
+import xarray as xr
 from inversion_sst_gp import utils
 
 # Configuration
@@ -74,9 +74,15 @@ def process_himawari_sst_data(time_str):
     # Apply 3x3 window averaging to reduce resolution and noise
     lon_resampled = utils.calculate_mean_window_1d(lon, 3)
     lat_resampled = utils.calculate_mean_window_1d(lat, 3)
-    T_curr_resampled = utils.calculate_mean_window_2d(T_curr, 3, 3, ignore_nan=IGNORE_NAN)
-    T_prev_resampled = utils.calculate_mean_window_2d(T_prev, 3, 3, ignore_nan=IGNORE_NAN)
-    T_next_resampled = utils.calculate_mean_window_2d(T_next, 3, 3, ignore_nan=IGNORE_NAN)
+    T_curr_resampled = utils.calculate_mean_window_2d(
+        T_curr, 3, 3, ignore_nan=IGNORE_NAN
+    )
+    T_prev_resampled = utils.calculate_mean_window_2d(
+        T_prev, 3, 3, ignore_nan=IGNORE_NAN
+    )
+    T_next_resampled = utils.calculate_mean_window_2d(
+        T_next, 3, 3, ignore_nan=IGNORE_NAN
+    )
 
     # Calculate temporal derivative (dT/dt)
     dTdt = (T_next_resampled - T_prev_resampled) / (2 * TIME_STEP_SECONDS)
@@ -86,7 +92,7 @@ def process_himawari_sst_data(time_str):
         lon_resampled, lat_resampled
     )
     dTdx, dTdy = utils.finite_difference_2d(X, Y, T_curr_resampled)
-    
+
     # Extend time dimension
     T_curr_resampled = T_curr_resampled[np.newaxis, :, :]
     dTdt = dTdt[np.newaxis, :, :]
@@ -108,18 +114,18 @@ def process_himawari_sst_data(time_str):
             "time_step": TIME_STEP_SECONDS,
         },
         data_vars={
-            "T": (["time","lat", "lon"], T_curr_resampled),
-            "dTdt": (["time","lat", "lon"], dTdt),
-            "dTdx": (["time","lat", "lon"], dTdx),
-            "dTdy": (["time","lat", "lon"], dTdy),
+            "T": (["time", "lat", "lon"], T_curr_resampled),
+            "dTdt": (["time", "lat", "lon"], dTdt),
+            "dTdx": (["time", "lat", "lon"], dTdx),
+            "dTdy": (["time", "lat", "lon"], dTdy),
         },
     )
     print(f"  Finished processing for {time_str}")
     return ds
 
 
-# Main Execution
-if __name__ == "__main__":
+# Main processing function
+def main():
     print("--- Starting preprocessing Himawari-9 SST ---")
 
     print("Loading Himawari SST data")
@@ -127,7 +133,7 @@ if __name__ == "__main__":
     for i, time_str in enumerate(TIME_STR_LIST):
         processed_ds = process_himawari_sst_data(time_str)
         ds_list.append(processed_ds)
-    
+
     print("Merging processed datasets and saving")
     # Merge by time dimension
     if ds_list:
@@ -140,3 +146,7 @@ if __name__ == "__main__":
         print("No datasets were processed to merge.")
 
     print("Data processing complete")
+
+
+if __name__ == "__main__":
+    main()
