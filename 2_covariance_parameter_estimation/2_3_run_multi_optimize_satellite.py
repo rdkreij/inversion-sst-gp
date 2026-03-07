@@ -71,7 +71,7 @@ def run_satellite(
         "const_params": {},
         "penalty_params": penalty_params,
         "share_len": True,
-        "share_tau": True,
+        "share_gamma": True,
         "share_sigma": True,
         "solve_log": True,
         "bounds_params": bounds_params,

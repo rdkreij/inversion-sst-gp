@@ -109,7 +109,7 @@ class GPRegressionJoint(object):
         penalty_params,
         share_len,
         share_sigma,
-        share_tau,
+        share_gamma,
         solve_log,
     ):
         # calculate restricted log marginal likelihood of z
@@ -129,7 +129,7 @@ class GPRegressionJoint(object):
             params["l_v"] = params["l_u"]
         if share_sigma:
             params["sigma_v"] = params["sigma_u"]
-        if share_tau:
+        if share_gamma:
             params["gamma_v"] = params["gamma_u"]
 
         # covariance matrix
@@ -166,7 +166,7 @@ class GPRegressionJoint(object):
         penalty_params,
         share_len,
         share_sigma,
-        share_tau,
+        share_gamma,
         solve_log,
         callback,
     ):
@@ -180,7 +180,7 @@ class GPRegressionJoint(object):
             penalty_params,
             share_len,
             share_sigma,
-            share_tau,
+            share_gamma,
             solve_log,
         )
 
@@ -209,7 +209,7 @@ class GPRegressionJoint(object):
         bounds_params={},
         share_len=False,
         share_sigma=False,
-        share_tau=False,
+        share_gamma=False,
         solve_log=True,
         shgo_bool=False,
         callback="off",
@@ -226,7 +226,7 @@ class GPRegressionJoint(object):
             penalty_params,
             share_len,
             share_sigma,
-            share_tau,
+            share_gamma,
             solve_log,
             callback,
         )
@@ -289,7 +289,7 @@ class GPRegressionJoint(object):
             params["l_v"] = params["l_u"]
         if share_sigma:
             params["sigma_v"] = params["sigma_u"]
-        if share_tau:
+        if share_gamma:
             params["gamma_v"] = params["gamma_u"]
         return params
 
@@ -491,9 +491,9 @@ class GPRegressionProcess(object):
             theta, alpha, phi, d, match_mask, solve_log, cov_func=cov_func
         )
 
-    def estimate_theta(self, initial_sigma, initial_ls, initial_tau, solve_log=False):
+    def estimate_theta(self, initial_sigma, initial_ls, initial_gamma, solve_log=False):
         # optimising rlml alpha
-        initial_theta = [initial_sigma, initial_ls, initial_tau]
+        initial_theta = [initial_sigma, initial_ls, initial_gamma]
 
         if solve_log:
             initial_theta_log = np.log(initial_theta)
@@ -538,7 +538,7 @@ def estimate_params_process(
     Y,
     initial_sigma,
     initial_ls,
-    initial_tau,
+    initial_gamma,
     degree=2,
     solve_log=True,
     cov_func="matern_3_2",
@@ -546,7 +546,7 @@ def estimate_params_process(
     # estimate parameters for process
     gprm = GPRegressionProcess(process, X, Y, degree=degree, cov_func=cov_func)
     sigma, ls, gamma = gprm.estimate_theta(
-        initial_sigma, initial_ls, initial_tau, solve_log
+        initial_sigma, initial_ls, initial_gamma, solve_log
     )
     return sigma, ls, gamma
 
