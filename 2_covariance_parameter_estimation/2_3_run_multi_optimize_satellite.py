@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 from inversion_sst_gp import gp_regression, utils
 
+
 # Helper function
 def run_satellite(
     time_str: str,
@@ -42,27 +43,27 @@ def run_satellite(
     initial_params = {
         "sigma_u": 9e-2,
         "l_u": 3e4,
-        "tau_u": 1e-2,
+        "gamma_u": 1e-2,
         "sigma_S": 3e-7,
         "l_S": 2e4,
-        "tau_S": 2e-7,
+        "gamma_S": 2e-7,
         "sigma_tau": 1e-2,
     }
     penalty_params = {
         "l_u": [3e4, 0.5e4],
         "sigma_u": [9e-2, 2e-2],
-        "tau_u": [1e-2, 0.1e-2],
+        "gamma_u": [1e-2, 0.1e-2],
         "l_S": [2e4, 2e4],
         "sigma_S": [3e-7, 5e-6],
-        "tau_S": [2e-7, 5e-6],
+        "gamma_S": [2e-7, 5e-6],
     }
     bounds_params = {
         "sigma_u": [1e-10, 10],
         "l_u": [1, 1e6],
-        "tau_u": [1e-10, 1],
+        "gamma_u": [1e-10, 1],
         "sigma_S": [1e-8, 1e-3],
         "l_S": [1, 1e6],
-        "tau_S": [1e-15, 1e-3],
+        "gamma_S": [1e-15, 1e-3],
         "sigma_tau": [1e-15, 1],
     }
     prop_sat = {
@@ -117,4 +118,4 @@ def main():
     print("\nAll tasks completed")
 
 if __name__ == "__main__":
-    main()
+    main()    main()    main()

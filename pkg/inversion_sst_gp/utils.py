@@ -116,26 +116,26 @@ def extract_params(filename, name, value, type):
         keys = [
             "sigma_u",
             "l_u",
-            "tau_u",
+            "gamma_u",
             "l_v",
-            "tau_v",
+            "gamma_v",
             "sigma_v",
             "sigma_S",
             "l_S",
-            "tau_S",
+            "gamma_S",
             "sigma_tau",
         ]
     elif type == "num_est":
         keys = [
             "sigma_u",
             "l_u",
-            "tau_u",
+            "gamma_u",
             "l_v",
-            "tau_v",
+            "gamma_v",
             "sigma_v",
             "sigma_S",
             "l_S",
-            "tau_S",
+            "gamma_S",
         ]
     elif type == "gos":
         keys = ["n"]

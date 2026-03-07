@@ -30,27 +30,27 @@ def main():
     theta = {
         "sigma_u": None,
         "l_u": None,
-        "tau_u": None,
+        "gamma_u": None,
         "sigma_v": None,
         "l_v": None,
-        "tau_v": None,
+        "gamma_v": None,
         "sigma_S": None,
         "l_S": None,
-        "tau_S": None,
+        "gamma_S": None,
     }
 
     print("Estimating hyperparameters for 'u'")
-    theta["sigma_u"], theta["l_u"], theta["tau_u"] = (
+    theta["sigma_u"], theta["l_u"], theta["gamma_u"] = (
         gp_regression.estimate_params_process(u, X, Y, 1e-1, 4e4, 1e-3)
     )
 
     print("Estimating hyperparameters for 'v'")
-    theta["sigma_v"], theta["l_v"], theta["tau_v"] = (
+    theta["sigma_v"], theta["l_v"], theta["gamma_v"] = (
         gp_regression.estimate_params_process(v, X, Y, 1e-1, 4e4, 1e-3)
     )
 
     print("Estimating hyperparameters for 'S'")
-    theta["sigma_S"], theta["l_S"], theta["tau_S"] = (
+    theta["sigma_S"], theta["l_S"], theta["gamma_S"] = (
         gp_regression.estimate_params_process(S, X, Y, 3e-7, 3e4, 2e-7)
     )
 

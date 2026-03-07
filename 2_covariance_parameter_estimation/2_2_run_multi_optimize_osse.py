@@ -63,27 +63,27 @@ def run_osse(
         initial_params = {
             "sigma_u": 9e-2,
             "l_u": 3e4,
-            "tau_u": 1e-2,
+            "gamma_u": 1e-2,
             "sigma_S": 3e-7,
             "l_S": 2e4,
-            "tau_S": 2e-7,
+            "gamma_S": 2e-7,
             "sigma_tau": 1e-2,
         }
         penalty_params = {
             "l_u": [3e4, 0.5e4],
             "sigma_u": [9e-2, 2e-2],
-            "tau_u": [1e-2, 0.1e-2],
+            "gamma_u": [1e-2, 0.1e-2],
             "l_S": [2e4, 2e4],
             "sigma_S": [3e-7, 5e-6],
-            "tau_S": [2e-7, 5e-6],
+            "gamma_S": [2e-7, 5e-6],
         }
         bounds_params = {
             "sigma_u": [1e-10, 10],
             "l_u": [1, 1e6],
-            "tau_u": [1e-10, 1],
+            "gamma_u": [1e-10, 1],
             "sigma_S": [1e-8, 1e-3],
             "l_S": [1, 1e6],
-            "tau_S": [1e-15, 1e-3],
+            "gamma_S": [1e-15, 1e-3],
             "sigma_tau": [1e-15, 1],
         }
         prop_osse = {
@@ -108,26 +108,26 @@ def run_osse(
         _, _, X, Y, _, _ = utils.calculate_grid_properties(lon, lat)
 
         print("Estimating parameters for optimum model")
-        sigma_u, l_u, tau_u = gp_regression.estimate_params_process(
+        sigma_u, l_u, gamma_u = gp_regression.estimate_params_process(
             u, X, Y, 1e-1, 4e4, 1e-3
         )
-        sigma_v, l_v, tau_v = gp_regression.estimate_params_process(
+        sigma_v, l_v, gamma_v = gp_regression.estimate_params_process(
             v, X, Y, 1e-1, 4e4, 1e-3
         )
-        sigma_S, l_S, tau_S = gp_regression.estimate_params_process(
+        sigma_S, l_S, gamma_S = gp_regression.estimate_params_process(
             S, X, Y, 3e-7, 3e4, 2e-7
         )
 
         theta = {
             "sigma_u": sigma_u,
             "l_u": l_u,
-            "tau_u": tau_u,
+            "gamma_u": gamma_u,
             "sigma_v": sigma_v,
             "l_v": l_v,
-            "tau_v": tau_v,
+            "gamma_v": gamma_v,
             "sigma_S": sigma_S,
             "l_S": l_S,
-            "tau_S": tau_S,
+            "gamma_S": gamma_S,
         }
 
         prop_osse = {

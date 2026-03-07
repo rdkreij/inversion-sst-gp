@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.special import gamma
 
 
 def isotropic_psd_2d(x, spacing, nbins=50, hann=True, log_bins=False):
@@ -144,13 +143,13 @@ def samples_psd_stats(
     )
 
 
-def calculate_theoretical_psd_matern_3_2(k, sigma=1.0, l=1.0, tau=0.0):
+def calculate_theoretical_psd_matern_3_2(k, sigma=1.0, l=1.0, gamma=0.0):
     # power spectral density of the Matérn covariance with nu = 3/2
     prefactor = sigma**2 * 18 * np.pi * np.sqrt(3) / (l ** (3))
-    return prefactor * (3 / l**2 + 4 * np.pi**2 * k**2) ** (-(5 / 2)) + tau**2
+    return prefactor * (3 / l**2 + 4 * np.pi**2 * k**2) ** (-(5 / 2)) + gamma**2
 
 
-def calculate_theoretical_psd_matern(f, sigma, l, nu, n, spacing, tau=0.0):
+def calculate_theoretical_psd_matern(f, sigma, l, nu, n, spacing, gamma=0.0):
     """
     Calculates the Power Spectral Density S(f) for a Matérn kernel.
 
@@ -161,7 +160,7 @@ def calculate_theoretical_psd_matern(f, sigma, l, nu, n, spacing, tau=0.0):
     nu    : smoothness parameter
     n     : dimensionality of the space
     spacing : grid spacing (used to convert frequency to wavenumber)
-    tau   : noise variance (default 0.0)
+    gamma   : noise variance (default 0.0)
     """
     # Numerator part of the constant fraction
     numerator = (
@@ -174,4 +173,4 @@ def calculate_theoretical_psd_matern(f, sigma, l, nu, n, spacing, tau=0.0):
     # The frequency-dependent term
     freq_term = ((2 * nu) / (l**2) + 4 * (np.pi**2) * (f**2)) ** (-(nu + n / 2))
 
-    return (numerator / denominator) * freq_term + tau**2 * spacing**n
+    return (numerator / denominator) * freq_term + gamma**2 * spacing**n

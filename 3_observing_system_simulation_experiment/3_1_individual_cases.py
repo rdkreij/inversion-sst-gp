@@ -2,15 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from inversion_sst_gp import (
-    gp_regression,
-    metrics,
-    other_methods,
-    plot_helper,
-    simulate_from_gp,
-    spectral_analysis,
-    utils,
-)
+from inversion_sst_gp import (gp_regression, metrics, other_methods,
+                              plot_helper, simulate_from_gp, spectral_analysis,
+                              utils)
 from matplotlib import rc
 from matplotlib.ticker import FuncFormatter, LogLocator
 
@@ -118,7 +112,7 @@ def compute_theoretical_psd(
     kmax,
     sigma,
     l,
-    tau,
+    gamma,
     spacing,
     log_bins=False,
     nbins=200,
@@ -139,7 +133,7 @@ def compute_theoretical_psd(
         )
 
     S = spectral_analysis.calculate_theoretical_psd_matern(
-        k, sigma=sigma, l=l, nu=nu, n=n, spacing=spacing, tau=tau
+        k, sigma=sigma, l=l, nu=nu, n=n, spacing=spacing, gamma=gamma
     )
     return k, S
 
@@ -174,7 +168,7 @@ def compute_psd_dict_all(
     log_bins,
     sigma,
     l,
-    tau,
+    gamma,
     kmin_theory=None,
     kmax_theory=None,
     nbins_theory=500,
@@ -232,7 +226,7 @@ def compute_psd_dict_all(
         kmax=kmax_theory,
         sigma=sigma,
         l=l,
-        tau=tau,
+        gamma=gamma,
         log_bins=True,
         spacing=spacing,
         nbins=nbins_theory,
@@ -244,7 +238,7 @@ def compute_psd_dict_all(
         kmax=kmax_theory,
         sigma=sigma,
         l=l,
-        tau=0,
+        gamma=0,
         log_bins=True,
         spacing=spacing,
         nbins=nbins_theory,
@@ -596,7 +590,7 @@ def experiment_fully_observed():
         log_bins=log_bins,
         sigma=params_num[f"sigma_{parameter}"],
         l=params_num[f"l_{parameter}"],
-        tau=params_num[f"tau_{parameter}"],
+        gamma=params_num[f"gamma_{parameter}"],
     )
 
     print("Simulating samples with GP obs-parameters")
@@ -615,7 +609,7 @@ def experiment_fully_observed():
         log_bins=log_bins,
         sigma=params_obs[f"sigma_{parameter}"],
         l=params_obs[f"l_{parameter}"],
-        tau=params_obs[f"tau_{parameter}"],
+        gamma=params_obs[f"gamma_{parameter}"],
     )
 
     print("Plotting PSD comparison and saving figure")

@@ -85,13 +85,13 @@ class GPRegressionJoint(object):
             raise ValueError("Unknown covariance function")
 
         Ku = kernel_func(
-            self.d, self.match_mask, params["sigma_u"], params["l_u"], params["tau_u"]
+            self.d, self.match_mask, params["sigma_u"], params["l_u"], params["gamma_u"]
         )
         Kv = kernel_func(
-            self.d, self.match_mask, params["sigma_v"], params["l_v"], params["tau_v"]
+            self.d, self.match_mask, params["sigma_v"], params["l_v"], params["gamma_v"]
         )
         KS = kernel_func(
-            self.d, self.match_mask, params["sigma_S"], params["l_S"], params["tau_S"]
+            self.d, self.match_mask, params["sigma_S"], params["l_S"], params["gamma_S"]
         )
         return block_diag(Ku, Kv, KS)
 
@@ -130,7 +130,7 @@ class GPRegressionJoint(object):
         if share_sigma:
             params["sigma_v"] = params["sigma_u"]
         if share_tau:
-            params["tau_v"] = params["tau_u"]
+            params["gamma_v"] = params["gamma_u"]
 
         # covariance matrix
         Kx = gprm.construct_Kx(params)  # construct Kx
@@ -290,7 +290,7 @@ class GPRegressionJoint(object):
         if share_sigma:
             params["sigma_v"] = params["sigma_u"]
         if share_tau:
-            params["tau_v"] = params["tau_u"]
+            params["gamma_v"] = params["gamma_u"]
         return params
 
     def format_output(self, mux, Kx):
@@ -432,7 +432,7 @@ class GPRegressionProcess(object):
         self.match_mask = self.d == 0
         self.phi = phi(so[:, 0], so[:, 1], degree)
 
-    def estimate_beta(self, sigma, ls, tau):
+    def estimate_beta(self, sigma, ls, gamma):
         # covariance matrix
         if self.cov_func == "matern_3_2":
             kernel_func = kernel_matern_3_2_var
@@ -440,7 +440,7 @@ class GPRegressionProcess(object):
             kernel_func = kernel_matern_5_2_var
         else:
             raise ValueError("Unknown covariance function")
-        K = kernel_func(self.d, self.match_mask, sigma, ls, tau)
+        K = kernel_func(self.d, self.match_mask, sigma, ls, gamma)
         L = chol(K)
         Q = chol2inv(L)
 
@@ -456,9 +456,9 @@ class GPRegressionProcess(object):
         # calculate restricted log marginal likelihood of alpha
 
         if solve_log:
-            sigma, ls, tau = list(np.exp(theta))
+            sigma, ls, gamma = list(np.exp(theta))
         else:
-            sigma, ls, tau = list(theta)
+            sigma, ls, gamma = list(theta)
 
         # covariance matrix
         if cov_func == "matern_3_2":
@@ -467,7 +467,7 @@ class GPRegressionProcess(object):
             kernel_func = kernel_matern_5_2_var
         else:
             raise ValueError("Unknown covariance function")
-        K = kernel_func(d, match_mask, sigma, ls, tau)
+        K = kernel_func(d, match_mask, sigma, ls, gamma)
         L = chol(K)
         Q = chol2inv(L)
 
@@ -510,7 +510,7 @@ class GPRegressionProcess(object):
                 initial_theta_log,
                 args=args,
             )
-            sigma, ls, tau = list(np.exp(result_log.x))
+            sigma, ls, gamma = list(np.exp(result_log.x))
         else:
             args = (
                 self.alphao,
@@ -528,8 +528,8 @@ class GPRegressionProcess(object):
                 bounds=bounds,
                 method="Nelder-Mead",
             )
-            sigma, ls, tau = list(result.x)
-        return sigma, ls, tau
+            sigma, ls, gamma = list(result.x)
+        return sigma, ls, gamma
 
 
 def estimate_params_process(
@@ -545,10 +545,10 @@ def estimate_params_process(
 ):
     # estimate parameters for process
     gprm = GPRegressionProcess(process, X, Y, degree=degree, cov_func=cov_func)
-    sigma, ls, tau = gprm.estimate_theta(
+    sigma, ls, gamma = gprm.estimate_theta(
         initial_sigma, initial_ls, initial_tau, solve_log
     )
-    return sigma, ls, tau
+    return sigma, ls, gamma
 
 
 def chol(M):
@@ -569,21 +569,21 @@ def cholinv(M):
     return chol2inv(L)
 
 
-def kernel_matern_3_2_var(d, match_mask, sigma, ls, tau):
+def kernel_matern_3_2_var(d, match_mask, sigma, ls, gamma):
     # Matern covariance function nu = 3/2 (p=1) including the additional variance τ**2
     matern = sigma**2 * (1 + np.sqrt(3) * d / ls) * np.exp(-np.sqrt(3) * d / ls)
-    var = tau**2 * match_mask
+    var = gamma**2 * match_mask
     return matern + var
 
 
-def kernel_matern_5_2_var(d, match_mask, sigma, ls, tau):
+def kernel_matern_5_2_var(d, match_mask, sigma, ls, gamma):
     # Matern covariance function nu = 5/2 (p=3) including the additional variance τ**2
     matern = (
         sigma**2
         * (1 + np.sqrt(5) * d / ls + 5 * d**2 / (3 * ls**2))
         * np.exp(-np.sqrt(5) * d / ls)
     )
-    var = tau**2 * match_mask
+    var = gamma**2 * match_mask
     return matern + var
 
 
