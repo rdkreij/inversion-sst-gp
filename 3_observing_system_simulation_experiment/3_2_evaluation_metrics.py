@@ -36,7 +36,7 @@ def plot_time_series_metrics(dfs):
         dfs['24h_gos_t'],
         return_fig=True,
     )
-    file_name = "3_observing_system_simulation_experiment/outputs/osse_metrics_time_48h.png"
+    file_name = "3_observing_system_simulation_experiment/outputs/osse_metrics_time.png"
     print(f"Saving time series metrics figure to {file_name}\n")
     fig.savefig(
         file_name,
@@ -62,7 +62,7 @@ def plot_noise_metrics(dfs):
         dfs['noise_gos_t'],
         return_fig=True,
     )
-    file_name = "3_observing_system_simulation_experiment/outputs/osse_metrics_time_100d.png"
+    file_name = "3_observing_system_simulation_experiment/outputs/osse_metrics_noise.png"
     print(f"Saving noise metrics figure to {file_name}\n")
     fig.savefig(
         file_name,

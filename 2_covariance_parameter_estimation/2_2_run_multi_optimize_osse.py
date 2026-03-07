@@ -197,6 +197,21 @@ def main():
     print("--- Starting multi optimize hyperparameter OSSE ---")
     
     # Mapping from test_type → steps list and models list
+    # step_map = {
+    #     "time_24h": list(range(0, 8640001, 86400)),
+    #     "time_1h": list(range(0, 172801, 3600)),
+    #     "noise": np.arange(0, 0.016, 0.001).tolist(),
+    #     "cloud_sparse": np.arange(0, 0.76, 0.03).tolist(),
+    #     "cloud_dense": np.arange(0, 0.76, 0.03).tolist(),
+    # }
+
+    # model_map = {
+    #     "time_24h": ["gos", "gprm_e", "gprm", "optimum"],
+    #     "time_1h": ["gos", "gprm_e", "gprm", "optimum"],
+    #     "noise": ["gos", "gprm_e", "gprm"],
+    #     "cloud_sparse": ["gprm_e", "gprm"],
+    #     "cloud_dense": ["gprm_e", "gprm"],
+    # }
     step_map = {
         "time_24h": list(range(0, 8640001, 86400)),
         "time_1h": list(range(0, 172801, 3600)),
@@ -224,6 +239,9 @@ def main():
     # Run OSSE for each combination
     for task_id in range(len(combinations)):
         step, model_type, test_type, step_index = combinations[task_id]
+        # if step_index != 100:
+        #     print(f"Skipping task {task_id + 1}/{len(combinations)} with: index={step_index}, step={step}, model_type={model_type}, test_type={test_type}")
+        #     continue  # Skip all except the one with step_index=100 for now
         print(f"\nRunning task {task_id + 1}/{len(combinations)} with: index={step_index}, step={step}, model_type={model_type}, test_type={test_type}")
         run_osse(step=step, model_type=model_type, test_type=test_type, run_id=str(step_index))
         

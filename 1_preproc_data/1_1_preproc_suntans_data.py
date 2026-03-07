@@ -39,7 +39,7 @@ TEST_CONFIGS = [
     },
     {
         'name': 'time_24h',
-        'val_range': np.arange(0, 100) * 24 * TIME_STEP,
+        'val_range': np.arange(0, 101) * 24 * TIME_STEP,
         'dataset_name': "suntans_24h",
         'param_name': 'time',
         'time_dependent': True,
@@ -71,6 +71,7 @@ def interpolate_osse_to_grid(ds_o, ds_grid, target_datetime):
     T_ug_n = ds_o.T.isel(time=idx + 1).values
     u_ug = ds_o.u.isel(time=idx).values
     v_ug = ds_o.v.isel(time=idx).values
+    eta_ug = ds_o.eta.isel(time=idx).values
     time_p = ds_o.time.isel(time=idx - 1).values
     time = ds_o.time.isel(time=idx).values
     time_n = ds_o.time.isel(time=idx + 1).values
@@ -93,7 +94,8 @@ def interpolate_osse_to_grid(ds_o, ds_grid, target_datetime):
     dTdt = griddata(points, dTdt_ug, (LON, LAT), method='cubic')
     u = griddata(points, u_ug, (LON, LAT), method='cubic')
     v = griddata(points, v_ug, (LON, LAT), method='cubic')
-
+    eta = griddata(points, eta_ug, (LON, LAT), method='cubic')
+    
     dTdx, dTdy = utils.finite_difference_2d(X, Y, T)
     S = dTdt + u * dTdx + v * dTdy
 
@@ -106,6 +108,7 @@ def interpolate_osse_to_grid(ds_o, ds_grid, target_datetime):
             u=(['lat', 'lon'], u),
             v=(['lat', 'lon'], v),
             S=(['lat', 'lon'], S),
+            eta=(['lat', 'lon'], eta),
         ),
         coords=dict(
             lon=(['lon'], lon),
@@ -141,7 +144,8 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
     np.random.seed(0)  # Set seed for reproducibility
 
     Ny, Nx = len(ds_grid.lat), len(ds_grid.lon)
-    Toc, uc, vc, Sc, dTdtoc = (
+    Toc, uc, vc, Sc, dTdtoc, etac = (
+        np.empty((len(val_range), Ny, Nx)),
         np.empty((len(val_range), Ny, Nx)),
         np.empty((len(val_range), Ny, Nx)),
         np.empty((len(val_range), Ny, Nx)),
@@ -168,6 +172,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
         uc[i, :, :] = ds_current_iteration_data.u.values
         vc[i, :, :] = ds_current_iteration_data.v.values
         Sc[i, :, :] = ds_current_iteration_data.S.values
+        etac[i, :, :] = ds_current_iteration_data.eta.values
 
         if test_name == 'measurement_error':
             Toc[i, :, :], _, _, dTdtoc[i, :, :], _ = simulate_obs.ModifyData(Tt, dTdtt, TIME_STEP, X, Y).noise(val).convert_to_input()
@@ -191,6 +196,7 @@ def run_osse_test(config, ds_osse_data, ds_grid, osse_snapshot_time):
         'u': ([param_name, 'lat', 'lon'], uc),
         'v': ([param_name, 'lat', 'lon'], vc),
         'S': ([param_name, 'lat', 'lon'], Sc),
+        'eta': ([param_name, 'lat', 'lon'], etac),
     }
 
     coords = {

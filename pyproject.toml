@@ -19,6 +19,11 @@ cmocean = ">=4.0.3,<5.0.0"
 scipy = ">=1.15.3,<2.0.0"
 colorcet = ">=3.1.0,<4.0.0"
 dask = "^2025.5.1"
+imageio = "^2.37.2"
+imageio-ffmpeg = "^0.6.0"
+rfgen = "^0.1.6"
+powspec = "^0.3"
+astropy = "<7"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

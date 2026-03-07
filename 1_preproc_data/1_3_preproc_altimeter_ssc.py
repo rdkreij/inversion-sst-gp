@@ -2,8 +2,8 @@ import xarray as xr
 import os
 
 # Configuration
-LON_LIMITS = (115, 118)
-LAT_LIMITS = (-15.5, -12.5)
+LON_LIMITS = (114.9, 118.1)
+LAT_LIMITS = (-15.6, -12.4)
 ALTIMETRY_DATA_DIR = "1_preproc_data/non_proc_data/altimetry"
 PROCESSED_DIR = "1_preproc_data/proc_data"
 OUTPUT_FILENAME = "altimeter_currents.nc"

@@ -12,13 +12,14 @@ class GPRegressionJoint(object):
     # Gaussian Process Regression Model
 
     def __init__(
-        self, dTds1o, dTds2o, dTdto, tstep, X, Y, maskp, degreeu=2, degreev=2, degreeS=2
+        self, dTds1o, dTds2o, dTdto, tstep, X, Y, maskp, degreeu=2, degreev=2, degreeS=2, cov_func="matern_3_2"
     ):        
         self.dTds1o = dTds1o
         self.dTds2o = dTds2o
         self.dTdto = dTdto
         self.maskp = maskp
         self.tstep = tstep
+        self.cov_func = cov_func
 
         # mask
         self.masko = np.logical_not(
@@ -66,13 +67,20 @@ class GPRegressionJoint(object):
 
     def construct_Kx(self, params):
         # construct Kx
-        Ku = kernel_matern_3_2_var(
+        if self.cov_func == "matern_3_2":
+            kernel_func = kernel_matern_3_2_var
+        elif self.cov_func == "matern_5_2":
+            kernel_func = kernel_matern_5_2_var
+        else:
+            raise ValueError("Unknown covariance function")
+
+        Ku = kernel_func(
             self.d, self.match_mask, params["sigma_u"], params["l_u"], params["tau_u"]
         )
-        Kv = kernel_matern_3_2_var(
+        Kv = kernel_func(
             self.d, self.match_mask, params["sigma_v"], params["l_v"], params["tau_v"]
         )
-        KS = kernel_matern_3_2_var(
+        KS = kernel_func(
             self.d, self.match_mask, params["sigma_S"], params["l_S"], params["tau_S"]
         )
         return block_diag(Ku, Kv, KS)
@@ -337,7 +345,7 @@ class GPRegressionJoint(object):
 
 
 def calculate_prediction_gpregression(
-    dTds1, dTds2, dTdt, params, X, Y, tstep, maskp = None, degreeu=2, degreev=2, degreeS=2, return_Kxstar=False
+    dTds1, dTds2, dTdt, params, X, Y, tstep, maskp = None, degreeu=2, degreev=2, degreeS=2, return_Kxstar=False, cov_func="matern_3_2"
 ):
     if maskp is None:
         maskp = np.ones_like(dTds1, dtype=bool)
@@ -354,6 +362,7 @@ def calculate_prediction_gpregression(
         degreeu=degreeu,
         degreev=degreev,
         degreeS=degreeS,
+        cov_func=cov_func,
     )
     
     if not return_Kxstar:
@@ -370,10 +379,11 @@ def calculate_prediction_gpregression(
 class GPRegressionProcess(object):
     # fit covariance parameters
 
-    def __init__(self, alpha, X, Y, degree=2):
+    def __init__(self, alpha, X, Y, degree=2, cov_func="matern_3_2"):
         self.alpha = alpha
         self.s = np.stack([X, Y],2)
         self.degree = degree
+        self.cov_func = cov_func
 
         # mask
         self.masko = np.logical_not(np.isnan(alpha))
@@ -387,7 +397,13 @@ class GPRegressionProcess(object):
 
     def estimate_beta(self, sigma, ls, tau):
         # covariance matrix
-        K = kernel_matern_3_2_var(self.d, self.match_mask, sigma, ls, tau)
+        if self.cov_func == "matern_3_2":
+            kernel_func = kernel_matern_3_2_var
+        elif self.cov_func == "matern_5_2":
+            kernel_func = kernel_matern_5_2_var
+        else:
+            raise ValueError("Unknown covariance function")
+        K = kernel_func(self.d, self.match_mask, sigma, ls, tau)
         L = chol(K)
         Q = chol2inv(L)
 
@@ -395,7 +411,7 @@ class GPRegressionProcess(object):
         return mdot([cholinv(mdot([self.phi.T,Q,self.phi])),self.phi.T,Q,self.alphao])
 
     @staticmethod
-    def calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log):
+    def calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log, cov_func="matern_3_2"):
         # calculate restricted log marginal likelihood of alpha
 
         if solve_log:
@@ -404,7 +420,13 @@ class GPRegressionProcess(object):
             sigma, ls, tau = list(theta)
 
         # covariance matrix
-        K = kernel_matern_3_2_var(d, match_mask, sigma, ls, tau)
+        if cov_func == "matern_3_2":
+            kernel_func = kernel_matern_3_2_var
+        elif cov_func == "matern_5_2":
+            kernel_func = kernel_matern_5_2_var
+        else:
+            raise ValueError("Unknown covariance function")
+        K = kernel_func(d, match_mask, sigma, ls, tau)
         L = chol(K)
         Q = chol2inv(L)
 
@@ -418,9 +440,9 @@ class GPRegressionProcess(object):
             -1/2*np.log(np.linalg.det(mdot([phi.T,Q,phi])))
 
     @staticmethod
-    def calculate_negative_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log):
+    def calculate_negative_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log, cov_func="matern_3_2"):
         # calculate restricted log marginal likelihood of alpha
-        return -GPRegressionProcess.calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log)
+        return -GPRegressionProcess.calculate_rlml_alpha(theta, alpha, phi, d, match_mask, solve_log, cov_func=cov_func)
 
     def estimate_theta(self, initial_sigma, initial_ls, initial_tau, solve_log=False): 
         # optimising rlml alpha
@@ -428,19 +450,19 @@ class GPRegressionProcess(object):
 
         if solve_log:
             initial_theta_log = np.log(initial_theta)
-            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log)
+            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log, self.cov_func)
             result_log = minimize(GPRegressionProcess.calculate_negative_rlml_alpha, initial_theta_log, args=args)
             sigma, ls, tau = list(np.exp(result_log.x))
         else:
-            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log)
+            args = (self.alphao, self.phi, self.d, self.match_mask, solve_log, self.cov_func)
             bounds = [(0,None)]*3
             result = minimize(GPRegressionProcess.calculate_negative_rlml_alpha, initial_theta, args=args, bounds=bounds, method='Nelder-Mead')
             sigma, ls, tau = list(result.x)
         return sigma, ls, tau
     
-def estimate_params_process(process, X, Y , initial_sigma, initial_ls, initial_tau, degree = 2, solve_log=True):
+def estimate_params_process(process, X, Y , initial_sigma, initial_ls, initial_tau, degree = 2, solve_log=True, cov_func="matern_3_2"):
     # estimate parameters for process
-    gprm = GPRegressionProcess(process, X, Y,degree=degree)
+    gprm = GPRegressionProcess(process, X, Y,degree=degree, cov_func=cov_func)
     sigma, ls, tau = gprm.estimate_theta(initial_sigma, initial_ls, initial_tau, solve_log)
     return sigma, ls, tau
 
@@ -465,6 +487,12 @@ def cholinv(M):
 def kernel_matern_3_2_var(d, match_mask, sigma, ls, tau):
     # Matern covariance function nu = 3/2 (p=1) including the additional variance τ**2
     matern = sigma**2 * (1 + np.sqrt(3) * d / ls) * np.exp(-np.sqrt(3) * d / ls)
+    var = tau**2 * match_mask
+    return matern + var
+
+def kernel_matern_5_2_var(d, match_mask, sigma, ls, tau):
+    # Matern covariance function nu = 5/2 (p=3) including the additional variance τ**2
+    matern = sigma**2 * (1 + np.sqrt(5) * d / ls + 5 * d**2 / (3 * ls**2)) * np.exp(-np.sqrt(5) * d / ls)
     var = tau**2 * match_mask
     return matern + var
 

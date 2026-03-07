@@ -1,4 +1,4 @@
-### How to obtain the covariance parameter estimates in the `./outputs`
+### How to obtain the covariance parameter estimates in the `./outputs` folder
 
 ---
 
