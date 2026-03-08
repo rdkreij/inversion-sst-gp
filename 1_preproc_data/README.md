@@ -1,15 +1,6 @@
 ### How to obtain the processed data in the `./proc_data` folder
 
 ---
-#### SUNTANS surface currents and surface temperature
-1. Visit [https://doi.org/10.5281/zenodo.18884342
-](https://doi.org/10.5281/zenodo.18884342
-)
-2. Download the NetCDF file `suntans_surface_prop_north_australian_basin.nc`
-3. Place the dowloaded NetCDF file in `./non_proc_data/suntans`
-6. Process the file by running `./1_1_preproc_suntans_data.py` this creates `./proc_data/suntans_1h.nc`, `./proc_data/suntans_24h.nc`, `./proc_data/suntans_dense_cloud.nc`, `./proc_data/suntans_measurement_error.nc`, and `./proc_data/suntans_sparse_cloud.nc`
-
----
 #### Himawari-9 surface temperature
 1. Visit [https://www.earthdata.nasa.gov/data/catalog](https://www.earthdata.nasa.gov/data/catalog) and search `H09-AHI-L3C-ACSPO-v2.90` and click on `GHRSST L3C NOAA/ACSPO Himawari-09 AHI Pacific Ocean Region Sea Surface Temperature v2.90 dataset`
 2. Click on `Data Access`
@@ -22,7 +13,16 @@
     - 2023-12-18 02:00:00
     - 2023-12-18 03:00:00
 5. Place the downloaded NetCDF files in `./non_proc_data/himawari`
-6. Process the files by running `./1_2_preproc_himawari_9_sst.py` this creates `./proc_data/himawari.nc`
+6. Process the files by running `./1_1_preproc_himawari_9_sst.py` this creates `./proc_data/himawari.nc`
+
+---
+#### SUNTANS surface currents and surface temperature
+1. Visit [https://doi.org/10.5281/zenodo.18884342
+](https://doi.org/10.5281/zenodo.18884342
+)
+2. Download the NetCDF file `suntans_surface_prop_north_australian_basin.nc`
+3. Place the dowloaded NetCDF file in `./non_proc_data/suntans`
+6. Process the file by running `./1_2_preproc_suntans_data.py` this creates `./proc_data/suntans_1h.nc`, `./proc_data/suntans_24h.nc`, `./proc_data/suntans_dense_cloud.nc`, `./proc_data/suntans_measurement_error.nc`, and `./proc_data/suntans_sparse_cloud.nc`
 
 ---
 #### Altimetry derived currents

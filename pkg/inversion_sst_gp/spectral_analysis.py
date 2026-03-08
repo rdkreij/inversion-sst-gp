@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import gamma as gamma_func
 
 
 def isotropic_psd_2d(x, spacing, nbins=50, hann=True, log_bins=False):
@@ -164,11 +165,11 @@ def calculate_theoretical_psd_matern(f, sigma, l, nu, n, spacing, gamma=0.0):
     """
     # Numerator part of the constant fraction
     numerator = (
-        (sigma**2) * (2**n) * (np.pi ** (n / 2)) * gamma(nu + n / 2) * ((2 * nu) ** nu)
+        (sigma**2) * (2**n) * (np.pi ** (n / 2)) * gamma_func(nu + n / 2) * ((2 * nu) ** nu)
     )
 
     # Denominator part of the constant fraction
-    denominator = gamma(nu) * (l ** (2 * nu))
+    denominator = gamma_func(nu) * (l ** (2 * nu))
 
     # The frequency-dependent term
     freq_term = ((2 * nu) / (l**2) + 4 * (np.pi**2) * (f**2)) ** (-(nu + n / 2))
