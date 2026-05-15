@@ -10,8 +10,8 @@
     - 2023-09-22 04:00:00
     - 2023-09-22 05:00:00
     - 2023-12-18 00:00:00
+    - 2023-12-18 01:00:00
     - 2023-12-18 02:00:00
-    - 2023-12-18 03:00:00
 5. Place the downloaded NetCDF files in `./non_proc_data/himawari`
 6. Process the files by running `./1_1_preproc_himawari_9_sst.py` this creates `./proc_data/himawari.nc`
 
